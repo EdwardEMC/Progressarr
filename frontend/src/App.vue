@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 import DownloadCard from './components/DownloadCard.vue'
 import {
@@ -13,18 +13,22 @@ const refreshing = ref(false)
 const error = ref<string | null>(null)
 const lastUpdated = ref<Date | null>(null)
 
+let pollingInterval: ReturnType<typeof setInterval> | undefined
+
 async function loadDownloads(
   showLoading = true,
+  showRefreshing = false,
 ): Promise<void> {
   try {
     if (showLoading) {
       loading.value = true
-    } else {
+    }
+
+    if (showRefreshing) {
       refreshing.value = true
     }
 
     error.value = null
-
     downloads.value = await getDownloads()
     lastUpdated.value = new Date()
   } catch (err) {
@@ -65,6 +69,16 @@ function formatUpdated(): string {
 
 onMounted(() => {
   loadDownloads()
+
+  pollingInterval = setInterval(() => {
+    loadDownloads(false)
+  }, 5000)
+})
+
+onUnmounted(() => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval)
+  }
 })
 </script>
 
@@ -121,7 +135,7 @@ onMounted(() => {
             class="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-white/5 hover:text-white disabled:opacity-50"
             :disabled="refreshing"
             title="Refresh"
-            @click="loadDownloads(false)"
+            @click="loadDownloads(false, true)"
           >
             <svg
               viewBox="0 0 24 24"
