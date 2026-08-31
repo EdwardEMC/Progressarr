@@ -6,99 +6,198 @@ defineProps<{
 }>()
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) {
+  if (bytes <= 0) {
     return '0 B'
   }
 
   const units = ['B', 'KB', 'MB', 'GB', 'TB']
-  const index = Math.floor(
-    Math.log(bytes) / Math.log(1024),
+  const index = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1,
   )
 
-  return `${(bytes / Math.pow(1024, index)).toFixed(2)} ${units[index]}`
+  return `${(bytes / Math.pow(1024, index)).toFixed(1)} ${units[index]}`
+}
+
+function formatStatus(status: string): string {
+  switch (status) {
+    case 'downloading':
+      return 'Downloading'
+
+    case 'import_pending':
+      return 'Importing'
+
+    case 'completed':
+      return 'Completed'
+
+    case 'failed':
+      return 'Failed'
+
+    default:
+      return 'Waiting'
+  }
+}
+
+function statusClass(status: string): string {
+  switch (status) {
+    case 'downloading':
+      return 'bg-[#00a4dc]/15 text-[#4dc8ed]'
+
+    case 'import_pending':
+      return 'bg-purple-500/15 text-purple-300'
+
+    case 'completed':
+      return 'bg-emerald-500/15 text-emerald-300'
+
+    case 'failed':
+      return 'bg-red-500/15 text-red-300'
+
+    default:
+      return 'bg-zinc-800 text-zinc-300'
+  }
 }
 </script>
 
 <template>
   <article
-    class="rounded-xl border border-zinc-800 bg-zinc-900 p-5 shadow-lg"
+    class="group overflow-hidden rounded-xl border border-white/8 bg-[#181818] shadow-xl transition duration-300 hover:border-white/15 hover:bg-[#1c1c1c]"
   >
-    <div class="mb-4 flex items-start justify-between gap-4">
-      <div>
-        <h2 class="text-lg font-semibold text-white">
-          {{ download.title }}
-        </h2>
+    <!-- Artwork / hero area -->
+    <div
+      class="relative h-64 overflow-hidden bg-zinc-900"
+    >
+      <div
+        class="absolute inset-0 bg-gradient-to-t from-[#181818] via-[#181818]/60 to-transparent"
+      />
+
+      <div
+        class="absolute inset-0 bg-gradient-to-r from-[#181818]/80 via-transparent to-transparent"
+      />
+
+      <div
+        class="relative z-10 flex h-full items-end p-6"
+      >
+        <div>
+          <div class="mb-3 flex items-center gap-2">
+            <span
+              class="rounded-full px-2.5 py-1 text-xs font-medium"
+              :class="statusClass(download.status)"
+            >
+              {{ formatStatus(download.status) }}
+            </span>
+
+            <span
+              v-if="download.protocol"
+              class="rounded-full bg-black/40 px-2.5 py-1 text-xs text-zinc-300"
+            >
+              {{ download.protocol }}
+            </span>
+          </div>
+
+          <h2
+            class="text-2xl font-semibold tracking-tight text-white"
+          >
+            {{ download.title }}
+          </h2>
+
+          <p
+            v-if="download.media_type === 'episode'"
+            class="mt-1 text-sm text-zinc-300"
+          >
+            Season {{ download.season }} · Episode {{ download.episode }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="p-6">
+      <div class="mb-2 flex items-end justify-between">
+        <div>
+          <p class="text-sm text-zinc-500">
+            {{ formatBytes(download.size - download.size_remaining) }}
+            of
+            {{ formatBytes(download.size) }}
+          </p>
+        </div>
+
+        <span class="text-2xl font-semibold text-white">
+          {{ download.progress.toFixed(0) }}%
+        </span>
+      </div>
+
+      <!-- Progress -->
+      <div class="h-2 overflow-hidden rounded-full bg-zinc-800">
+        <div
+          class="h-full rounded-full bg-gradient-to-r from-[#aa5cc3] to-[#00a4dc] transition-all duration-700"
+          :style="{ width: `${download.progress}%` }"
+        />
+      </div>
+
+      <!-- Download information -->
+      <div
+        class="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-white/6 pt-5"
+      >
+        <div>
+          <p class="text-xs uppercase tracking-wider text-zinc-600">
+            Client
+          </p>
+
+          <p class="mt-1 text-sm text-zinc-300">
+            {{ download.download_client ?? 'Unknown' }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-xs uppercase tracking-wider text-zinc-600">
+            Indexer
+          </p>
+
+          <p
+            class="mt-1 truncate text-sm text-zinc-300"
+            :title="download.indexer ?? undefined"
+          >
+            {{ download.indexer ?? 'Unknown' }}
+          </p>
+        </div>
+
+        <div v-if="download.time_left">
+          <p class="text-xs uppercase tracking-wider text-zinc-600">
+            Time remaining
+          </p>
+
+          <p class="mt-1 text-sm text-zinc-300">
+            {{ download.time_left }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-xs uppercase tracking-wider text-zinc-600">
+            Remaining
+          </p>
+
+          <p class="mt-1 text-sm text-zinc-300">
+            {{ formatBytes(download.size_remaining) }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Release -->
+      <div
+        v-if="download.release"
+        class="mt-5 border-t border-white/6 pt-4"
+      >
+        <p class="mb-1 text-xs uppercase tracking-wider text-zinc-600">
+          Release
+        </p>
 
         <p
-          v-if="download.media_type === 'episode'"
-          class="mt-1 text-sm text-zinc-400"
+          class="truncate text-xs text-zinc-500"
+          :title="download.release"
         >
-          Season {{ download.season }} · Episode {{ download.episode }}
+          {{ download.release }}
         </p>
       </div>
-
-      <span
-        class="rounded-full bg-zinc-800 px-3 py-1 text-xs font-medium text-zinc-300"
-      >
-        {{ download.status.replace('_', ' ') }}
-      </span>
-    </div>
-
-    <div class="mb-2 flex items-center justify-between text-sm">
-      <span class="text-zinc-400">
-        Progress
-      </span>
-
-      <span class="font-medium text-white">
-        {{ download.progress.toFixed(0) }}%
-      </span>
-    </div>
-
-    <div class="h-2 overflow-hidden rounded-full bg-zinc-800">
-      <div
-        class="h-full rounded-full bg-blue-500 transition-all duration-500"
-        :style="{ width: `${download.progress}%` }"
-      />
-    </div>
-
-    <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
-      <div>
-        <p class="text-zinc-500">Size</p>
-        <p class="text-zinc-200">
-          {{ formatBytes(download.size) }}
-        </p>
-      </div>
-
-      <div>
-        <p class="text-zinc-500">Remaining</p>
-        <p class="text-zinc-200">
-          {{ formatBytes(download.size_remaining) }}
-        </p>
-      </div>
-
-      <div>
-        <p class="text-zinc-500">Client</p>
-        <p class="text-zinc-200">
-          {{ download.download_client ?? 'Unknown' }}
-        </p>
-      </div>
-
-      <div>
-        <p class="text-zinc-500">Indexer</p>
-        <p class="truncate text-zinc-200">
-          {{ download.indexer ?? 'Unknown' }}
-        </p>
-      </div>
-    </div>
-
-    <div
-      v-if="download.time_left && download.status === 'downloading'"
-      class="mt-4 border-t border-zinc-800 pt-4 text-sm"
-    >
-      <span class="text-zinc-500">ETA</span>
-      <span class="ml-2 text-zinc-200">
-        {{ download.time_left }}
-      </span>
     </div>
   </article>
 </template>
