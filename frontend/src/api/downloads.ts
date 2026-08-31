@@ -1,3 +1,8 @@
+export interface Artwork {
+  poster_url: string | null
+  backdrop_url: string | null
+}
+
 export type DownloadStatus =
   | 'downloading'
   | 'import_pending'
@@ -11,6 +16,8 @@ export interface Download {
 
   title: string
   release: string | null
+  
+  artwork: Artwork | null
 
   season: number | null
   episode: number | null

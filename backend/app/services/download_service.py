@@ -4,6 +4,7 @@ import httpx
 from app.clients.radarr import RadarrClient
 from app.clients.sonarr import SonarrClient
 from app.models import Download, DownloadStatus
+from app.services.artwork_service import ArtworkService
 
 
 class DownloadService:
@@ -11,9 +12,11 @@ class DownloadService:
         self,
         radarr: RadarrClient,
         sonarr: SonarrClient,
+        artwork: ArtworkService,
     ) -> None:
         self.radarr = radarr
         self.sonarr = sonarr
+        self.artwork = artwork
 
     async def get_downloads(self) -> list[Download]:
         radarr_queue, sonarr_queue = await asyncio.gather(
@@ -47,12 +50,22 @@ class DownloadService:
 
             title = item.get("title", "Unknown")
 
+            artwork = None
+
             if movie_id:
                 try:
                     movie = await self.radarr.get_movie(movie_id)
                     title = movie.get("title", title)
+
+                    artwork = self.artwork.get_artwork(
+                        source="radarr",
+                        item_id=movie_id,
+                        images=movie.get("images", []),
+                    )
                 except httpx.HTTPError:
                     pass
+            else:
+                artwork = None
 
             downloads.append(
                 Download(
@@ -60,6 +73,7 @@ class DownloadService:
                     media_type="movie",
                     title=title,
                     release=item.get("releaseTitle"),
+                    artwork=artwork,
                     status=self._get_status(item),
                     progress=self._calculate_progress(
                         size,
@@ -97,12 +111,22 @@ class DownloadService:
             season = item.get("seasonNumber")
             episode = None
 
+            artwork = None
+
             if series_id:
                 try:
                     series = await self.sonarr.get_series(series_id)
                     title = series.get("title", title)
+
+                    artwork = self.artwork.get_artwork(
+                        source="sonarr",
+                        item_id=series_id,
+                        images=series.get("images", []),
+                    )
                 except httpx.HTTPError:
                     pass
+            else:
+                artwork = None
 
             if episode_id:
                 try:
@@ -119,6 +143,7 @@ class DownloadService:
                     media_type="episode",
                     title=title,
                     release=item.get("title"),
+                    artwork=artwork,
                     season=season,
                     episode=episode,
                     status=self._get_status(item),

@@ -46,4 +46,31 @@ class SonarrClient:
             response.raise_for_status()
 
             return response.json()
+
+    async def get_image(self, image_url: str) -> bytes:
+        async with httpx.AsyncClient(
+            timeout=30.0,
+            follow_redirects=True,
+        ) as client:
+            if "mediacover" in image_url.lower():
+                # Reconstruct just the endpoint part securely
+                parts = image_url.lower().split("mediacover")
+                image_url = f"/api/v3/mediacover{parts[1]}"
+
+            full_url = f"{self.base_url.rstrip('/')}/{image_url.lstrip('/')}"
             
+            headers = {
+                "X-Api-Key": settings.sonarr_api_key,
+                "Accept": "image/*"
+            }
+            
+            response = await client.get(
+                full_url,
+                headers=headers,
+            )
+
+            if "login" in str(response.url):
+                raise httpx.HTTPError("Sonarr rejected authentication and redirected to login.")
+
+            response.raise_for_status()
+            return response.content

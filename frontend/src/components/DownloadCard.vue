@@ -66,6 +66,15 @@ function statusClass(status: string): string {
     <div
       class="relative h-64 overflow-hidden bg-zinc-900"
     >
+      <img
+        v-if="download.artwork?.backdrop_url"
+        :src="download.artwork.backdrop_url"
+        :alt="download.title"
+        class="absolute inset-0 h-full w-full object-cover opacity-40 transition-transform duration-700 group-hover:scale-105"
+        @load="console.log('BACKDROP LOADED:', download.artwork.backdrop_url)"
+        @error="console.error('BACKDROP ERROR:', download.artwork.backdrop_url)"
+      />
+
       <div
         class="absolute inset-0 bg-gradient-to-t from-[#181818] via-[#181818]/60 to-transparent"
       />
@@ -74,38 +83,47 @@ function statusClass(status: string): string {
         class="absolute inset-0 bg-gradient-to-r from-[#181818]/80 via-transparent to-transparent"
       />
 
-      <div
-        class="relative z-10 flex h-full items-end p-6"
-      >
-        <div>
-          <div class="mb-3 flex items-center gap-2">
-            <span
-              class="rounded-full px-2.5 py-1 text-xs font-medium"
-              :class="statusClass(download.status)"
-            >
-              {{ formatStatus(download.status) }}
-            </span>
+      <div class="relative z-10 flex h-full items-end p-4 sm:p-6">
+        <div class="flex min-w-0 w-full gap-3 sm:gap-5">
+          <img
+            v-if="download.artwork?.poster_url"
+            :src="download.artwork.poster_url"
+            :alt="download.title"
+            class="h-auto w-24 sm:w-28 md:w-32 lg:w-36 max-h-48 shrink-0 self-end rounded-md object-cover shadow-xl"
+            @load="console.log('POSTER LOADED:', download.artwork.poster_url)"
+            @error="console.error('POSTER ERROR:', download.artwork.poster_url)"
+          />
 
-            <span
-              v-if="download.protocol"
-              class="rounded-full bg-black/40 px-2.5 py-1 text-xs text-zinc-300"
+          <div class="min-w-0 flex-1 self-end">
+            <div class="mb-2 sm:mb-3 flex flex-wrap items-center gap-2">
+              <span
+                class="rounded-full px-2.5 py-1 text-xs font-medium"
+                :class="statusClass(download.status)"
+              >
+                {{ formatStatus(download.status) }}
+              </span>
+
+              <span
+                v-if="download.protocol"
+                class="rounded-full bg-black/40 px-2.5 py-1 text-xs text-zinc-300"
+              >
+                {{ download.protocol }}
+              </span>
+            </div>
+
+            <h2
+              class="text-xl sm:text-2xl font-semibold tracking-tight text-white line-clamp-2"
             >
-              {{ download.protocol }}
-            </span>
+              {{ download.title }}
+            </h2>
+
+            <p
+              v-if="download.media_type === 'episode'"
+              class="mt-1 text-sm text-zinc-300"
+            >
+              Season {{ download.season }} · Episode {{ download.episode }}
+            </p>
           </div>
-
-          <h2
-            class="text-2xl font-semibold tracking-tight text-white"
-          >
-            {{ download.title }}
-          </h2>
-
-          <p
-            v-if="download.media_type === 'episode'"
-            class="mt-1 text-sm text-zinc-300"
-          >
-            Season {{ download.season }} · Episode {{ download.episode }}
-          </p>
         </div>
       </div>
     </div>

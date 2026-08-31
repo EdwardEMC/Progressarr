@@ -35,4 +35,42 @@ class RadarrClient:
             response.raise_for_status()
 
             return response.json()
+
+    async def get_image(self, image_url: str) -> bytes:
+        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+            response = await client.get(
+                f"{self.base_url}{image_url}",
+                headers=self.headers,
+            )
+
+            response.raise_for_status()
+
+            return response.content
+
+    async def get_image(self, image_url: str) -> bytes:
+        async with httpx.AsyncClient(
+            timeout=30.0,
+            follow_redirects=True,
+        ) as client:
+            if "mediacover" in image_url.lower():
+                # Reconstruct just the endpoint part securely
+                parts = image_url.lower().split("mediacover")
+                image_url = f"/api/v3/mediacover{parts[1]}"
+
+            full_url = f"{self.base_url.rstrip('/')}/{image_url.lstrip('/')}"
             
+            headers = {
+                "X-Api-Key": settings.radarr_api_key,
+                "Accept": "image/*"
+            }
+            
+            response = await client.get(
+                full_url,
+                headers=headers,
+            )
+
+            if "login" in str(response.url):
+                raise httpx.HTTPError("Radarr rejected authentication and redirected to login.")
+
+            response.raise_for_status()
+            return response.content

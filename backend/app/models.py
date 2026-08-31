@@ -11,12 +11,19 @@ class DownloadStatus(str, Enum):
     UNKNOWN = "unknown"
 
 
+class Artwork(BaseModel):
+    poster_url: str | None = None
+    backdrop_url: str | None = None
+
+
 class Download(BaseModel):
     id: str
     media_type: str
 
     title: str
     release: str | None = None
+
+    artwork: Artwork | None = None
 
     season: int | None = None
     episode: int | None = None
@@ -35,4 +42,4 @@ class Download(BaseModel):
     indexer: str | None = None
 
     error_message: str | None = None
-    
+
