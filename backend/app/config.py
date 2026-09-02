@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     sonarr_url: str
     sonarr_api_key: str
 
+    session_secret: str
+    session_cookie_name: str = "progressarr_session"
+    session_expiry_hours: int = 24
+
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",
         case_sensitive=False,

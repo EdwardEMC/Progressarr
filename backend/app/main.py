@@ -1,35 +1,68 @@
 import httpx
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pathlib import Path
+from sqlalchemy import select
 
-from app.clients.radarr import RadarrClient
-from app.clients.sonarr import SonarrClient
+from app.api.auth import router as auth_router
+from app.api.settings import router as settings_router
+from app.database import async_session, init_database
+from app.db_models import ServiceConfig
 from app.models import Download
-from app.services.download_service import DownloadService
 from app.services.artwork_service import ArtworkService
+from app.services.client_factory import (
+    create_radarr_client,
+    create_sonarr_client,
+)
+from app.services.config_bootstap import bootstrap_config
+from app.services.download_service import DownloadService
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ARTWORK_CACHE_DIR = BASE_DIR / "data" / "artwork"
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_database()
+
+    async with async_session() as session:
+        await bootstrap_config(session)
+
+    yield
+
+
 app = FastAPI(
     title="Progressarr",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
+app.include_router(settings_router)
+app.include_router(auth_router)
 
-radarr = RadarrClient()
-sonarr = SonarrClient()
+
 artwork = ArtworkService(
-    cache_dir=ARTWORK_CACHE_DIR
+    cache_dir=ARTWORK_CACHE_DIR,
 )
 
-download_service = DownloadService(
-    radarr=radarr,
-    sonarr=sonarr,
-    artwork=artwork,
-)
+
+async def get_service_config() -> ServiceConfig:
+    async with async_session() as session:
+        result = await session.execute(
+            select(ServiceConfig).limit(1)
+        )
+
+        config = result.scalar_one_or_none()
+
+        if config is None:
+            raise RuntimeError(
+                "Progressarr configuration has not been initialized."
+            )
+
+        return config
 
 
 @app.get("/health")
@@ -42,7 +75,19 @@ async def health() -> dict[str, str]:
 @app.get("/api/downloads", response_model=list[Download])
 async def get_downloads() -> list[Download]:
     try:
+        config = await get_service_config()
+
+        radarr = create_radarr_client(config)
+        sonarr = create_sonarr_client(config)
+
+        download_service = DownloadService(
+            radarr=radarr,
+            sonarr=sonarr,
+            artwork=artwork,
+        )
+
         return await download_service.get_downloads()
+
     except Exception as exc:
         raise HTTPException(
             status_code=502,
@@ -77,7 +122,6 @@ async def get_artwork(
         / f"{image_type}.jpg"
     )
 
-    # Cache hit
     if cache_path.exists():
         return FileResponse(
             cache_path,
@@ -87,14 +131,15 @@ async def get_artwork(
             },
         )
 
-    # Cache miss
     try:
+        config = await get_service_config()
+
         if source == "radarr":
-            item = await radarr.get_movie(item_id)
-            client = radarr
+            client = create_radarr_client(config)
+            item = await client.get_movie(item_id)
         else:
-            item = await sonarr.get_series(item_id)
-            client = sonarr
+            client = create_sonarr_client(config)
+            item = await client.get_series(item_id)
 
         image = next(
             (
