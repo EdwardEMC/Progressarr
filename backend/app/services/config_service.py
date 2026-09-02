@@ -9,9 +9,7 @@ class ConfigService:
         self.session = session
 
     async def get_config(self) -> ServiceConfig:
-        result = await self.session.execute(
-            select(ServiceConfig).limit(1)
-        )
+        result = await self.session.execute(select(ServiceConfig).limit(1))
 
         config = result.scalar_one_or_none()
 
@@ -31,6 +29,7 @@ class ConfigService:
         sonarr_url: str | None = None,
         sonarr_api_key: str | None = None,
         jellyfin_url: str | None = None,
+        jellyfin_api_key: str | None = None,
     ) -> ServiceConfig:
         config = await self.get_config()
 
@@ -49,8 +48,10 @@ class ConfigService:
         if jellyfin_url is not None:
             config.jellyfin_url = jellyfin_url
 
+        if jellyfin_api_key is not None:
+            config.jellyfin_api_key = jellyfin_api_key
+
         await self.session.commit()
         await self.session.refresh(config)
 
         return config
-    

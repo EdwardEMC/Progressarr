@@ -38,6 +38,11 @@ class ServiceConfig(Base):
         nullable=True,
     )
 
+    jellyfin_api_key: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+    )
+
 
 class User(Base):
     __tablename__ = "users"

@@ -13,12 +13,13 @@ from app.db_models import ServiceConfig
 from app.models import Download
 from app.services.artwork_service import ArtworkService
 from app.services.client_factory import (
+    create_jellyfin_client,
     create_radarr_client,
     create_sonarr_client,
 )
 from app.services.config_bootstap import bootstrap_config
 from app.services.download_service import DownloadService
-
+from app.services.jellyfin_service import JellyfinService
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ARTWORK_CACHE_DIR = BASE_DIR / "data" / "artwork"
@@ -51,16 +52,12 @@ artwork = ArtworkService(
 
 async def get_service_config() -> ServiceConfig:
     async with async_session() as session:
-        result = await session.execute(
-            select(ServiceConfig).limit(1)
-        )
+        result = await session.execute(select(ServiceConfig).limit(1))
 
         config = result.scalar_one_or_none()
 
         if config is None:
-            raise RuntimeError(
-                "Progressarr configuration has not been initialized."
-            )
+            raise RuntimeError("Progressarr configuration has not been initialized.")
 
         return config
 
@@ -70,6 +67,26 @@ async def health() -> dict[str, str]:
     return {
         "status": "ok",
     }
+
+
+@app.get("/api/jellyfin/system")
+async def get_jellyfin_system() -> dict:
+    try:
+        config = await get_service_config()
+
+        jellyfin = create_jellyfin_client(config)
+
+        service = JellyfinService(
+            jellyfin=jellyfin,
+        )
+
+        return await service.get_system_info()
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Unable to retrieve Jellyfin system info: {exc}",
+        ) from exc
 
 
 @app.get("/api/downloads", response_model=list[Download])
@@ -95,9 +112,7 @@ async def get_downloads() -> list[Download]:
         ) from exc
 
 
-@app.get(
-    "/api/artwork/{source}/{image_type}/{item_id}"
-)
+@app.get("/api/artwork/{source}/{image_type}/{item_id}")
 async def get_artwork(
     source: str,
     image_type: str,
@@ -115,12 +130,7 @@ async def get_artwork(
             detail="Unknown artwork type",
         )
 
-    cache_path = (
-        ARTWORK_CACHE_DIR
-        / source
-        / str(item_id)
-        / f"{image_type}.jpg"
-    )
+    cache_path = ARTWORK_CACHE_DIR / source / str(item_id) / f"{image_type}.jpg"
 
     if cache_path.exists():
         return FileResponse(

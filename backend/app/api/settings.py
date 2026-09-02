@@ -8,7 +8,6 @@ from app.database import async_session
 from app.db_models import User
 from app.services.config_service import ConfigService
 
-
 router = APIRouter(
     prefix="/api/settings",
     tags=["settings"],
@@ -37,7 +36,8 @@ class SonarrSettingsUpdate(BaseModel):
 
 
 class JellyfinSettingsUpdate(BaseModel):
-    url: str | None = None
+    url: str = Field(min_length=1)
+    api_key: str | None = None
 
 
 class SettingsUpdate(BaseModel):
@@ -67,21 +67,15 @@ async def get_settings(
     return SettingsResponse(
         radarr=ServiceSettings(
             url=config.radarr_url,
-            configured=bool(
-                config.radarr_url
-                and config.radarr_api_key
-            ),
+            configured=bool(config.radarr_url and config.radarr_api_key),
         ),
         sonarr=ServiceSettings(
             url=config.sonarr_url,
-            configured=bool(
-                config.sonarr_url
-                and config.sonarr_api_key
-            ),
+            configured=bool(config.sonarr_url and config.sonarr_api_key),
         ),
         jellyfin=ServiceSettings(
             url=config.jellyfin_url,
-            configured=bool(config.jellyfin_url),
+            configured=bool(config.jellyfin_url and config.jellyfin_api_key),
         ),
     )
 
@@ -106,6 +100,7 @@ async def update_settings(
 
         if payload.jellyfin is not None:
             kwargs["jellyfin_url"] = payload.jellyfin.url
+            kwargs["jellyfin_api_key"] = payload.jellyfin.api_key
 
         await service.update_config(**kwargs)
 
@@ -114,21 +109,15 @@ async def update_settings(
     return SettingsResponse(
         radarr=ServiceSettings(
             url=config.radarr_url,
-            configured=bool(
-                config.radarr_url
-                and config.radarr_api_key
-            ),
+            configured=bool(config.radarr_url and config.radarr_api_key),
         ),
         sonarr=ServiceSettings(
             url=config.sonarr_url,
-            configured=bool(
-                config.sonarr_url
-                and config.sonarr_api_key
-            ),
+            configured=bool(config.sonarr_url and config.sonarr_api_key),
         ),
         jellyfin=ServiceSettings(
             url=config.jellyfin_url,
-            configured=bool(config.jellyfin_url),
+            configured=bool(config.jellyfin_url and config.jellyfin_api_key),
         ),
     )
 
@@ -210,10 +199,7 @@ async def _test_connection(
     except httpx.HTTPStatusError as exc:
         return ConnectionTestResponse(
             success=False,
-            message=(
-                f"{service} returned HTTP "
-                f"{exc.response.status_code}."
-            ),
+            message=(f"{service} returned HTTP " f"{exc.response.status_code}."),
         )
 
     except httpx.HTTPError:
@@ -221,4 +207,73 @@ async def _test_connection(
             success=False,
             message=f"Unable to communicate with {service}.",
         )
-    
+
+
+@router.post(
+    "/jellyfin/test",
+    response_model=ConnectionTestResponse,
+)
+async def test_jellyfin(
+    payload: ConnectionTestRequest,
+    user: User = Depends(get_current_user),
+) -> ConnectionTestResponse:
+    return await _test_jellyfin_connection(
+        url=payload.url,
+        api_key=payload.api_key,
+    )
+
+
+async def _test_jellyfin_connection(
+    *,
+    url: str,
+    api_key: str,
+) -> ConnectionTestResponse:
+    base_url = url.rstrip("/")
+
+    try:
+        async with httpx.AsyncClient(
+            timeout=10.0,
+        ) as client:
+            response = await client.get(
+                f"{base_url}/System/Info",
+                headers={
+                    "X-Emby-Token": api_key,
+                },
+            )
+
+            if response.status_code in {401, 403}:
+                return ConnectionTestResponse(
+                    success=False,
+                    message="Jellyfin rejected the API key.",
+                )
+
+            response.raise_for_status()
+
+            return ConnectionTestResponse(
+                success=True,
+                message="Successfully connected to Jellyfin.",
+            )
+
+    except httpx.ConnectError:
+        return ConnectionTestResponse(
+            success=False,
+            message="Unable to connect to Jellyfin.",
+        )
+
+    except httpx.TimeoutException:
+        return ConnectionTestResponse(
+            success=False,
+            message="Jellyfin connection timed out.",
+        )
+
+    except httpx.HTTPStatusError as exc:
+        return ConnectionTestResponse(
+            success=False,
+            message=(f"Jellyfin returned HTTP " f"{exc.response.status_code}."),
+        )
+
+    except httpx.HTTPError:
+        return ConnectionTestResponse(
+            success=False,
+            message="Unable to communicate with Jellyfin.",
+        )
