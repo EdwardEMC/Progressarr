@@ -23,6 +23,7 @@ class SettingsResponse(BaseModel):
     radarr: ServiceSettings
     sonarr: ServiceSettings
     jellyfin: ServiceSettings
+    seerr: ServiceSettings
 
 
 class RadarrSettingsUpdate(BaseModel):
@@ -35,6 +36,10 @@ class SonarrSettingsUpdate(BaseModel):
     api_key: str | None = None
 
 
+class SeerrSettingsUpdate(BaseModel):
+    url: str = Field(min_length=1)
+    api_key: str | None = None
+
 class JellyfinSettingsUpdate(BaseModel):
     url: str = Field(min_length=1)
     api_key: str | None = None
@@ -44,6 +49,7 @@ class SettingsUpdate(BaseModel):
     radarr: RadarrSettingsUpdate | None = None
     sonarr: SonarrSettingsUpdate | None = None
     jellyfin: JellyfinSettingsUpdate | None = None
+    seerr: SeerrSettingsUpdate | None = None
 
 
 class ConnectionTestRequest(BaseModel):
@@ -73,6 +79,10 @@ async def get_settings(
             url=config.sonarr_url,
             configured=bool(config.sonarr_url and config.sonarr_api_key),
         ),
+        seerr=ServiceSettings(
+            url=config.seerr_url,
+            configured=bool(config.seerr_url and config.seerr_api_key),
+        ),
         jellyfin=ServiceSettings(
             url=config.jellyfin_url,
             configured=bool(config.jellyfin_url and config.jellyfin_api_key),
@@ -92,15 +102,27 @@ async def update_settings(
 
         if payload.radarr is not None:
             kwargs["radarr_url"] = payload.radarr.url
-            kwargs["radarr_api_key"] = payload.radarr.api_key
+
+            if payload.radarr.api_key is not None:
+                kwargs["radarr_api_key"] = payload.radarr.api_key
 
         if payload.sonarr is not None:
             kwargs["sonarr_url"] = payload.sonarr.url
-            kwargs["sonarr_api_key"] = payload.sonarr.api_key
+
+            if payload.sonarr.api_key is not None:
+                kwargs["sonarr_api_key"] = payload.sonarr.api_key
+
+        if payload.seerr is not None:
+            kwargs["seerr_url"] = payload.seerr.url
+
+            if payload.seerr.api_key is not None:
+                kwargs["seerr_api_key"] = payload.seerr.api_key
 
         if payload.jellyfin is not None:
             kwargs["jellyfin_url"] = payload.jellyfin.url
-            kwargs["jellyfin_api_key"] = payload.jellyfin.api_key
+
+            if payload.jellyfin.api_key is not None:
+                kwargs["jellyfin_api_key"] = payload.jellyfin.api_key
 
         await service.update_config(**kwargs)
 
@@ -114,6 +136,10 @@ async def update_settings(
         sonarr=ServiceSettings(
             url=config.sonarr_url,
             configured=bool(config.sonarr_url and config.sonarr_api_key),
+        ),
+        seerr=ServiceSettings(
+            url=config.seerr_url,
+            configured=bool(config.seerr_url and config.seerr_api_key),
         ),
         jellyfin=ServiceSettings(
             url=config.jellyfin_url,
@@ -206,6 +232,76 @@ async def _test_connection(
         return ConnectionTestResponse(
             success=False,
             message=f"Unable to communicate with {service}.",
+        )
+
+
+@router.post(
+    "/seerr/test",
+    response_model=ConnectionTestResponse,
+)
+async def test_seerr(
+    payload: ConnectionTestRequest,
+    user: User = Depends(get_current_user),
+) -> ConnectionTestResponse:
+    return await _test_seerr_connection(
+        url=payload.url,
+        api_key=payload.api_key,
+    )
+
+
+async def _test_seerr_connection(
+    *,
+    url: str,
+    api_key: str,
+) -> ConnectionTestResponse:
+    base_url = url.rstrip("/")
+
+    try:
+        async with httpx.AsyncClient(
+            timeout=10.0,
+        ) as client:
+            response = await client.get(
+                f"{base_url}/api/v1/status",
+                headers={
+                    "X-Api-Key": api_key,
+                },
+            )
+
+            if response.status_code in {401, 403}:
+                return ConnectionTestResponse(
+                    success=False,
+                    message="Seerr rejected the API key.",
+                )
+
+            response.raise_for_status()
+
+            return ConnectionTestResponse(
+                success=True,
+                message="Successfully connected to Seerr.",
+            )
+
+    except httpx.ConnectError:
+        return ConnectionTestResponse(
+            success=False,
+            message="Unable to connect to Seerr.",
+        )
+
+    except httpx.TimeoutException:
+        return ConnectionTestResponse(
+            success=False,
+            message="Seerr connection timed out.",
+        )
+
+    except httpx.HTTPStatusError as exc:
+        return ConnectionTestResponse(
+            success=False,
+            message=f"Seerr returned HTTP {exc.response.status_code}.",
+        )
+
+    except httpx.HTTPError:
+        return ConnectionTestResponse(
+            success=False,
+            message="Unable to communicate with Seerr.",
         )
 
 

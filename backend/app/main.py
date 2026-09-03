@@ -1,25 +1,30 @@
+from backend.app.auth.dependencies import get_current_user
 import httpx
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pathlib import Path
 from sqlalchemy import select
 
 from app.api.auth import router as auth_router
+from app.api.requests import router as requests_router
 from app.api.settings import router as settings_router
 from app.database import async_session, init_database
-from app.db_models import ServiceConfig
+from app.db_models import ServiceConfig, User
 from app.models import Download
 from app.services.artwork_service import ArtworkService
 from app.services.client_factory import (
     create_jellyfin_client,
     create_radarr_client,
+    create_seerr_client,
     create_sonarr_client,
 )
 from app.services.config_bootstap import bootstrap_config
 from app.services.download_service import DownloadService
 from app.services.jellyfin_service import JellyfinService
+from app.services.request_service import RequestService
+from app.services.seerr_service import SeerrService
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ARTWORK_CACHE_DIR = BASE_DIR / "data" / "artwork"
@@ -41,6 +46,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.include_router(requests_router)
 app.include_router(settings_router)
 app.include_router(auth_router)
 
@@ -90,20 +96,33 @@ async def get_jellyfin_system() -> dict:
 
 
 @app.get("/api/downloads", response_model=list[Download])
-async def get_downloads() -> list[Download]:
+async def get_downloads(
+    user: User = Depends(get_current_user)
+) -> list[Download]:
     try:
         config = await get_service_config()
 
         radarr = create_radarr_client(config)
         sonarr = create_sonarr_client(config)
 
+        seerr_client = create_seerr_client(config)
+        seerr = SeerrService(seerr=seerr_client)
+
+        request_service = RequestService(
+            seerr=seerr,
+        )
+
         download_service = DownloadService(
             radarr=radarr,
             sonarr=sonarr,
             artwork=artwork,
+            requests=request_service,
         )
 
-        return await download_service.get_downloads()
+        return await download_service.get_downloads(
+            seerr_user_id=user.seerr_user_id,
+            is_admin=user.is_admin
+        )
 
     except Exception as exc:
         raise HTTPException(

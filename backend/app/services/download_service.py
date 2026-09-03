@@ -5,6 +5,7 @@ from app.clients.radarr import RadarrClient
 from app.clients.sonarr import SonarrClient
 from app.models import Download, DownloadStatus
 from app.services.artwork_service import ArtworkService
+from app.services.request_service import RequestService
 
 
 class DownloadService:
@@ -13,12 +14,18 @@ class DownloadService:
         radarr: RadarrClient,
         sonarr: SonarrClient,
         artwork: ArtworkService,
+        requests: RequestService,
     ) -> None:
         self.radarr = radarr
         self.sonarr = sonarr
         self.artwork = artwork
+        self.requests = requests
 
-    async def get_downloads(self) -> list[Download]:
+    async def get_downloads(
+        self,
+        seerr_user_id: int | None = None,
+        is_admin: bool = False,
+    ) -> list[Download]:
         radarr_queue, sonarr_queue = await asyncio.gather(
             self.radarr.get_queue(),
             self.sonarr.get_queue(),
@@ -33,6 +40,58 @@ class DownloadService:
         downloads.extend(
             await self._process_sonarr_queue(sonarr_queue)
         )
+
+        if is_admin:
+            requested_media = (
+                await self.requests.get_all_requested_media_lookup()
+            )
+
+            for download in downloads:
+                key = (
+                    "movie"
+                    if download.media_type == "movie"
+                    else "tv",
+                    download.service_item_id,
+                    download.season,
+                )
+
+                requester = requested_media.get(key)
+
+                if requester is not None:
+                    download.requested_by_id = requester.get("id")
+                    download.requested_by_username = requester.get("username")
+
+        elif seerr_user_id is not None:
+            requested_media = (
+                await self.requests.get_requested_media_lookup(
+                    seerr_user_id
+                )
+            )
+
+            filtered_downloads = []
+
+            for download in downloads:
+                key = (
+                    "movie"
+                    if download.media_type == "movie"
+                    else "tv",
+                    download.service_item_id,
+                    download.season,
+                )
+
+                requester = requested_media.get(key)
+
+                if requester is None:
+                    continue
+
+                download.requested_by_id = requester.get("id")
+                download.requested_by_username = requester.get(
+                    "username"
+                )
+
+                filtered_downloads.append(download)
+
+            downloads = filtered_downloads
 
         return downloads
 
@@ -71,6 +130,7 @@ class DownloadService:
                 Download(
                     id=f"radarr-{item['id']}",
                     media_type="movie",
+                    service_item_id=movie_id,
                     title=title,
                     release=item.get("releaseTitle"),
                     artwork=artwork,
@@ -141,6 +201,7 @@ class DownloadService:
                 Download(
                     id=f"sonarr-{item['id']}",
                     media_type="episode",
+                    service_item_id=series_id,
                     title=title,
                     release=item.get("title"),
                     artwork=artwork,
@@ -165,6 +226,7 @@ class DownloadService:
             )
 
         return downloads
+    
 
     @staticmethod
     def _calculate_progress(

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 
-import AppLayout from "../components/AppLayout.vue";
-import { getSettings } from "../api/settings";
+import AppLayout from "../../components/AppLayout.vue";
+import { getSettings } from "../../api/settings.ts";
 
 const radarrConfigured = ref(false);
 const sonarrConfigured = ref(false);
+const seerrConfigured = ref(false);
 const jellyfinConfigured = ref(false);
 
 onMounted(async () => {
@@ -14,6 +15,7 @@ onMounted(async () => {
 
     radarrConfigured.value = settings.radarr.configured;
     sonarrConfigured.value = settings.sonarr.configured;
+    seerrConfigured.value = settings.seerr.configured;
     jellyfinConfigured.value = settings.jellyfin.configured;
   } catch {
     // The individual settings pages handle detailed errors.
@@ -85,6 +87,32 @@ onMounted(async () => {
               "
             >
               {{ sonarrConfigured ? "Configured" : "Not configured" }}
+            </span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
+          to="/settings/seerr"
+          class="rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-zinc-700 hover:bg-zinc-800"
+        >
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h3 class="font-medium text-white">Seerr</h3>
+
+              <p class="mt-2 text-sm text-zinc-400">
+                Configure your Seerr connection.
+              </p>
+            </div>
+
+            <span
+              class="rounded-full px-2.5 py-1 text-xs font-medium"
+              :class="
+                seerrConfigured
+                  ? 'bg-green-500/10 text-green-400'
+                  : 'bg-zinc-800 text-zinc-400'
+              "
+            >
+              {{ seerrConfigured ? "Configured" : "Not configured" }}
             </span>
           </div>
         </RouterLink>

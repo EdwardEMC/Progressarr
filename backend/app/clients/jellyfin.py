@@ -22,3 +22,30 @@ class JellyfinClient:
             response.raise_for_status()
 
             return response.json()
+
+    async def authenticate_user(
+        self,
+        username: str,
+        password: str,
+    ) -> dict:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.post(
+                f"{self.base_url}/Users/AuthenticateByName",
+                headers={
+                    "X-Emby-Authorization": (
+                        'MediaBrowser Client="Progressarr", '
+                        'Device="Progressarr", '
+                        'DeviceId="progressarr", '
+                        'Version="0.1.0"'
+                    ),
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "Username": username,
+                    "Pw": password,
+                },
+            )
+
+            response.raise_for_status()
+
+            return response.json()

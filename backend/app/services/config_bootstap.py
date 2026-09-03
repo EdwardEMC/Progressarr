@@ -22,6 +22,10 @@ async def bootstrap_config(
         radarr_api_key=settings.radarr_api_key,
         sonarr_url=settings.sonarr_url,
         sonarr_api_key=settings.sonarr_api_key,
+        seerr_url=settings.seerr_url,
+        seerr_api_key=settings.seerr_api_key,
+        jellyfin_url=settings.jellyfin_url,
+        jellyfin_api_key=settings.jellyfin_api_key,
     )
 
     session.add(config)

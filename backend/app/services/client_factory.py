@@ -1,22 +1,8 @@
 from app.clients.jellyfin import JellyfinClient
 from app.clients.radarr import RadarrClient
+from app.clients.seerr import SeerrClient
 from app.clients.sonarr import SonarrClient
 from app.db_models import ServiceConfig
-
-
-def create_jellyfin_client(
-    config: ServiceConfig,
-) -> JellyfinClient:
-    if not config.jellyfin_url:
-        raise RuntimeError("Jellyfin URL has not been configured.")
-
-    if not config.jellyfin_api_key:
-        raise RuntimeError("Jellyfin API key has not been configured.")
-
-    return JellyfinClient(
-        base_url=config.jellyfin_url,
-        api_key=config.jellyfin_api_key,
-    )
 
 
 def create_radarr_client(
@@ -46,4 +32,37 @@ def create_sonarr_client(
     return SonarrClient(
         base_url=config.sonarr_url,
         api_key=config.sonarr_api_key,
+    )
+
+def create_seerr_client(
+    config: ServiceConfig,
+) -> SeerrClient:
+    if not config.seerr_url:
+        raise RuntimeError(
+            "Seerr URL has not been configured."
+        )
+
+    if not config.seerr_api_key:
+        raise RuntimeError(
+            "Seerr API key has not been configured."
+        )
+
+    return SeerrClient(
+        base_url=config.seerr_url,
+        api_key=config.seerr_api_key,
+    )
+
+
+def create_jellyfin_client(
+    config: ServiceConfig,
+) -> JellyfinClient:
+    if not config.jellyfin_url:
+        raise RuntimeError("Jellyfin URL has not been configured.")
+
+    if not config.jellyfin_api_key:
+        raise RuntimeError("Jellyfin API key has not been configured.")
+
+    return JellyfinClient(
+        base_url=config.jellyfin_url,
+        api_key=config.jellyfin_api_key,
     )

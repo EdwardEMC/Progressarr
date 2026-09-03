@@ -117,6 +117,13 @@ function statusClass(status: string): string {
               {{ download.title }}
             </h2>
 
+            <div
+              v-if="download.requested_by_username"
+              class="text-sm text-gray-400"
+            >
+              Requested by {{ download.requested_by_username }}
+            </div>
+
             <p
               v-if="download.media_type === 'episode'"
               class="mt-1 text-sm text-zinc-300"

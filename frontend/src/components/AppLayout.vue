@@ -89,6 +89,14 @@ async function logout() {
             </RouterLink>
 
             <RouterLink
+                to="/settings/seerr"
+                class="mb-1 flex items-center rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800 hover:text-white"
+                active-class="bg-zinc-800 text-white"
+            >
+                Seerr
+            </RouterLink>
+
+            <RouterLink
                 to="/settings/jellyfin"
                 class="mb-1 flex items-center rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800 hover:text-white"
                 active-class="bg-zinc-800 text-white"

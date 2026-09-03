@@ -33,6 +33,16 @@ class ServiceConfig(Base):
         nullable=True,
     )
 
+    seerr_url: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+    )
+
+    seerr_api_key: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+    )
+
     jellyfin_url: Mapped[str | None] = mapped_column(
         String(500),
         nullable=True,
@@ -58,9 +68,16 @@ class User(Base):
         nullable=False,
     )
 
-    password_hash: Mapped[str] = mapped_column(
-        String(500),
-        nullable=False,
+    jellyfin_user_id: Mapped[str | None] = mapped_column(
+        String(100),
+        unique=True,
+        nullable=True,
+    )
+
+    seerr_user_id: Mapped[int | None] = mapped_column(
+        nullable=True,
+        unique=True,
+        index=True,
     )
 
     is_admin: Mapped[bool] = mapped_column(

@@ -20,6 +20,12 @@ class Download(BaseModel):
     id: str
     media_type: str
 
+    # Radarr movie ID or Sonarr series ID
+    service_item_id: int | None = None
+
+    requested_by_id: int | None = None
+    requested_by_username: str | None = None
+
     title: str
     release: str | None = None
 

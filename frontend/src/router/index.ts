@@ -2,10 +2,11 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import DashboardView from "../views/DashboardView.vue";
 import LoginView from "../views/LoginView.vue";
-import SettingsView from "../views/SettingsView.vue";
-import RadarrSettingsView from "../views/RadarrSettingsView.vue";
-import SonarrSettingsView from "../views/SonarrSettingsView.vue";
-import JellyfinSettingsView from "../views/JellyfinSettingsView.vue";
+import SettingsView from "../views/settings/SettingsView.vue";
+import RadarrSettingsView from "../views/settings/RadarrSettingsView.vue";
+import SonarrSettingsView from "../views/settings/SonarrSettingsView.vue";
+import SeerrSettings from '../views/settings/SeerrSettingsView.vue';
+import JellyfinSettingsView from "../views/settings/JellyfinSettingsView.vue";
 
 import { useAuthStore } from "../stores/auth";
 
@@ -50,6 +51,14 @@ const router = createRouter({
       meta: {
         requiresAuth: true,
       },
+    },
+
+    {
+      path: '/settings/seerr',
+      component: SeerrSettings,
+      meta: {
+          requiresAuth: true,
+        },
     },
 
     {

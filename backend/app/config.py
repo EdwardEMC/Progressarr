@@ -13,6 +13,12 @@ class Settings(BaseSettings):
     sonarr_url: str
     sonarr_api_key: str
 
+    seerr_url: str
+    seerr_api_key: str
+
+    jellyfin_url: str
+    jellyfin_api_key: str
+
     session_secret: str
     session_cookie_name: str = "progressarr_session"
     session_expiry_hours: int = 24

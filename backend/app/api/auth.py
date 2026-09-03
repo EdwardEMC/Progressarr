@@ -1,12 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
+from sqlalchemy import select
 
 from app.auth.dependencies import get_current_user
 from app.auth.service import AuthService
 from app.auth.session import create_session_token
 from app.config import settings
 from app.database import async_session
-from app.db_models import User
+from app.db_models import User, ServiceConfig
+from app.services.client_factory import create_jellyfin_client, create_seerr_client
+from app.services.jellyfin_service import JellyfinService
+from app.services.seerr_service import SeerrService
 
 
 router = APIRouter(
@@ -24,6 +28,7 @@ class UserResponse(BaseModel):
     id: int
     username: str
     is_admin: bool
+    seerr_user_id: int | None
 
 
 class LoginResponse(BaseModel):
@@ -39,7 +44,29 @@ async def login(
     response: Response,
 ) -> LoginResponse:
     async with async_session() as session:
-        service = AuthService(session)
+        result = await session.execute(
+            select(ServiceConfig).limit(1)
+        )
+
+        config = result.scalar_one_or_none()
+
+        if config is None:
+            raise HTTPException(
+                status_code=500,
+                detail="Progressarr configuration has not been initialized.",
+            )
+
+        jellyfin_client = create_jellyfin_client(config)
+        jellyfin = JellyfinService(jellyfin=jellyfin_client)
+
+        seerr_client = create_seerr_client(config)
+        seerr = SeerrService(seerr=seerr_client)
+
+        service = AuthService(
+            session,
+            jellyfin,
+            seerr,
+        )
 
         user = await service.authenticate(
             username=payload.username,
@@ -68,6 +95,7 @@ async def login(
             id=user.id,
             username=user.username,
             is_admin=user.is_admin,
+            seerr_user_id=user.seerr_user_id,
         )
     )
 
@@ -84,39 +112,6 @@ async def logout(
         "message": "Logged out successfully.",
     }
 
-class SetupRequest(BaseModel):
-    username: str = Field(min_length=1)
-    password: str = Field(min_length=8)
-
-
-@router.post(
-    "/setup",
-    response_model=UserResponse,
-)
-async def setup(
-    payload: SetupRequest,
-) -> UserResponse:
-    async with async_session() as session:
-        service = AuthService(session)
-
-        if await service.has_users():
-            raise HTTPException(
-                status_code=409,
-                detail="A user already exists.",
-            )
-
-        user = await service.create_user(
-            username=payload.username,
-            password=payload.password,
-            is_admin=True,
-        )
-
-    return UserResponse(
-        id=user.id,
-        username=user.username,
-        is_admin=user.is_admin,
-    )
-
 
 @router.get(
     "/me",
@@ -129,4 +124,5 @@ async def get_me(
         id=user.id,
         username=user.username,
         is_admin=user.is_admin,
+        seerr_user_id=user.seerr_user_id,
     )

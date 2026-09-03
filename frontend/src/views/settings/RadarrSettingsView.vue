@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 
-import AppLayout from '../components/AppLayout.vue'
-import ServiceSettingsForm from '../components/ServiceSettingsForm.vue'
+import AppLayout from '../../components/AppLayout.vue'
+import ServiceSettingsForm from '../../components/ServiceSettingsForm.vue'
 
 import {
   getSettings,
-  testSonarrConnection,
+  testRadarrConnection,
   updateSettings,
-} from '../api/settings'
+} from '../../api/settings.ts'
 
 
 const url = ref('')
@@ -36,10 +36,10 @@ async function loadSettings() {
   try {
     const settings = await getSettings()
 
-    url.value = settings.sonarr.url ?? ''
-    configured.value = settings.sonarr.configured
+    url.value = settings.radarr.url ?? ''
+    configured.value = settings.radarr.configured
   } catch {
-    error.value = 'Unable to load Sonarr settings.'
+    error.value = 'Unable to load Radarr settings.'
   } finally {
     loading.value = false
   }
@@ -57,7 +57,7 @@ async function testConnection(payload: {
   testing.value = true
 
   try {
-    const result = await testSonarrConnection(
+    const result = await testRadarrConnection(
       payload.url,
       payload.apiKey,
     )
@@ -67,7 +67,7 @@ async function testConnection(payload: {
   } catch {
     connectionSuccess.value = false
     connectionMessage.value =
-      'Unable to test the Sonarr connection.'
+      'Unable to test the Radarr connection.'
   } finally {
     testing.value = false
   }
@@ -85,7 +85,7 @@ async function save(payload: {
 
   try {
     await updateSettings({
-      sonarr: {
+      radarr: {
         url: payload.url,
         ...(payload.apiKey
           ? { api_key: payload.apiKey }
@@ -99,10 +99,10 @@ async function save(payload: {
     form.value?.clearApiKey()
 
     success.value =
-      'Sonarr settings saved successfully.'
+      'Radarr settings saved successfully.'
   } catch {
     error.value =
-      'Unable to save Sonarr settings.'
+      'Unable to save Radarr settings.'
   } finally {
     saving.value = false
   }
@@ -118,7 +118,7 @@ onMounted(loadSettings)
 
     <template #header>
       <h1 class="text-lg font-semibold">
-        Sonarr
+        Radarr
       </h1>
     </template>
 
@@ -127,11 +127,11 @@ onMounted(loadSettings)
 
       <div class="mb-8">
         <h2 class="text-2xl font-semibold">
-          Sonarr
+          Radarr
         </h2>
 
         <p class="mt-1 text-sm text-zinc-400">
-          Configure your Sonarr connection.
+          Configure your Radarr connection.
         </p>
       </div>
 
@@ -148,7 +148,7 @@ onMounted(loadSettings)
       <ServiceSettingsForm
         v-else
         ref="form"
-        service-name="Sonarr"
+        service-name="Radarr"
         :url="url"
         :configured="configured"
         :loading="loading"

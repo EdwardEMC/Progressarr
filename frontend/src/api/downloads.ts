@@ -13,6 +13,10 @@ export type DownloadStatus =
 export interface Download {
   id: string
   media_type: string
+  service_item_id: number | null
+
+  requested_by_id: number | null
+  requested_by_username: string | null
 
   title: string
   release: string | null

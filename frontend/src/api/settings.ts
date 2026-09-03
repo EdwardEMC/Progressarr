@@ -7,6 +7,7 @@ export interface SettingsResponse {
   radarr: ServiceSettings;
   sonarr: ServiceSettings;
   jellyfin: ServiceSettings;
+  seerr: ServiceSettings;
 }
 
 export interface ServiceSettingsUpdate {
@@ -30,6 +31,7 @@ export async function updateSettings(settings: {
   radarr?: ServiceSettingsUpdate;
   sonarr?: ServiceSettingsUpdate;
   jellyfin?: ServiceSettingsUpdate;
+  seerr?: ServiceSettingsUpdate;
 }): Promise<SettingsResponse> {
   const response = await fetch("/api/settings", {
     method: "PUT",
@@ -132,6 +134,35 @@ export async function testJellyfinConnection(
 
   if (!response.ok) {
     throw new Error("Unable to test Jellyfin connection.");
+  }
+
+  return response.json();
+}
+
+export async function testSeerrConnection(
+  url: string,
+  apiKey: string,
+): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  const response = await fetch("/api/settings/seerr/test", {
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    credentials: "include",
+
+    body: JSON.stringify({
+      url,
+      api_key: apiKey,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to test Seerr connection.");
   }
 
   return response.json();

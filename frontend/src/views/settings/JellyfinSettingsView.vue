@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 
-import AppLayout from "../components/AppLayout.vue";
+import AppLayout from "../../components/AppLayout.vue";
 import {
   getSettings,
   testJellyfinConnection,
   updateSettings,
-} from "../api/settings";
+} from "../../api/settings.ts";
 
 const url = ref("");
 const apiKey = ref("");
