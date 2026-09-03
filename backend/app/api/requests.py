@@ -2,13 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 
 from app.auth.dependencies import get_current_user
-from app.config import settings
 from app.database import async_session
 from app.db_models import ServiceConfig, User
 from app.services.client_factory import create_seerr_client
-from app.services.seerr_service import SeerrService
 from app.services.request_service import RequestService
-
+from app.services.seerr_service import SeerrService
 
 router = APIRouter(
     prefix="/api/requests",
@@ -24,9 +22,7 @@ async def get_requests(
         return []
 
     async with async_session() as session:
-        result = await session.execute(
-            select(ServiceConfig).limit(1)
-        )
+        result = await session.execute(select(ServiceConfig).limit(1))
 
         config = result.scalar_one_or_none()
 
@@ -40,6 +36,4 @@ async def get_requests(
         seerr = SeerrService(seerr=seerr_client)
         service = RequestService(seerr=seerr)
 
-        return await service.get_user_requests(
-            seerr_user_id=user.seerr_user_id
-        )
+        return await service.get_user_requests(seerr_user_id=user.seerr_user_id)

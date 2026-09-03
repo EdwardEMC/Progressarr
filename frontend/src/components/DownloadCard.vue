@@ -11,10 +11,7 @@ function formatBytes(bytes: number): string {
   }
 
   const units = ['B', 'KB', 'MB', 'GB', 'TB']
-  const index = Math.min(
-    Math.floor(Math.log(bytes) / Math.log(1024)),
-    units.length - 1,
-  )
+  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
 
   return `${(bytes / Math.pow(1024, index)).toFixed(1)} ${units[index]}`
 }
@@ -63,9 +60,7 @@ function statusClass(status: string): string {
     class="group overflow-hidden rounded-xl border border-white/8 bg-[#181818] shadow-xl transition duration-300 hover:border-white/15 hover:bg-[#1c1c1c]"
   >
     <!-- Artwork / hero area -->
-    <div
-      class="relative h-64 overflow-hidden bg-zinc-900"
-    >
+    <div class="relative h-64 overflow-hidden bg-zinc-900">
       <img
         v-if="download.artwork?.backdrop_url"
         :src="download.artwork.backdrop_url"
@@ -111,23 +106,15 @@ function statusClass(status: string): string {
               </span>
             </div>
 
-            <h2
-              class="text-xl sm:text-2xl font-semibold tracking-tight text-white line-clamp-2"
-            >
+            <h2 class="text-xl sm:text-2xl font-semibold tracking-tight text-white line-clamp-2">
               {{ download.title }}
             </h2>
 
-            <div
-              v-if="download.requested_by_username"
-              class="text-sm text-gray-400"
-            >
+            <div v-if="download.requested_by_username" class="text-sm text-gray-400">
               Requested by {{ download.requested_by_username }}
             </div>
 
-            <p
-              v-if="download.media_type === 'episode'"
-              class="mt-1 text-sm text-zinc-300"
-            >
+            <p v-if="download.media_type === 'episode'" class="mt-1 text-sm text-zinc-300">
               Season {{ download.season }} · Episode {{ download.episode }}
             </p>
           </div>
@@ -146,9 +133,7 @@ function statusClass(status: string): string {
           </p>
         </div>
 
-        <span class="text-2xl font-semibold text-white">
-          {{ download.progress.toFixed(0) }}%
-        </span>
+        <span class="text-2xl font-semibold text-white"> {{ download.progress.toFixed(0) }}% </span>
       </div>
 
       <!-- Progress -->
@@ -160,13 +145,9 @@ function statusClass(status: string): string {
       </div>
 
       <!-- Download information -->
-      <div
-        class="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-white/6 pt-5"
-      >
+      <div class="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-white/6 pt-5">
         <div>
-          <p class="text-xs uppercase tracking-wider text-zinc-600">
-            Client
-          </p>
+          <p class="text-xs uppercase tracking-wider text-zinc-600">Client</p>
 
           <p class="mt-1 text-sm text-zinc-300">
             {{ download.download_client ?? 'Unknown' }}
@@ -174,22 +155,15 @@ function statusClass(status: string): string {
         </div>
 
         <div>
-          <p class="text-xs uppercase tracking-wider text-zinc-600">
-            Indexer
-          </p>
+          <p class="text-xs uppercase tracking-wider text-zinc-600">Indexer</p>
 
-          <p
-            class="mt-1 truncate text-sm text-zinc-300"
-            :title="download.indexer ?? undefined"
-          >
+          <p class="mt-1 truncate text-sm text-zinc-300" :title="download.indexer ?? undefined">
             {{ download.indexer ?? 'Unknown' }}
           </p>
         </div>
 
         <div v-if="download.time_left">
-          <p class="text-xs uppercase tracking-wider text-zinc-600">
-            Time remaining
-          </p>
+          <p class="text-xs uppercase tracking-wider text-zinc-600">Time remaining</p>
 
           <p class="mt-1 text-sm text-zinc-300">
             {{ download.time_left }}
@@ -197,9 +171,7 @@ function statusClass(status: string): string {
         </div>
 
         <div>
-          <p class="text-xs uppercase tracking-wider text-zinc-600">
-            Remaining
-          </p>
+          <p class="text-xs uppercase tracking-wider text-zinc-600">Remaining</p>
 
           <p class="mt-1 text-sm text-zinc-300">
             {{ formatBytes(download.size_remaining) }}
@@ -208,18 +180,10 @@ function statusClass(status: string): string {
       </div>
 
       <!-- Release -->
-      <div
-        v-if="download.release"
-        class="mt-5 border-t border-white/6 pt-4"
-      >
-        <p class="mb-1 text-xs uppercase tracking-wider text-zinc-600">
-          Release
-        </p>
+      <div v-if="download.release" class="mt-5 border-t border-white/6 pt-4">
+        <p class="mb-1 text-xs uppercase tracking-wider text-zinc-600">Release</p>
 
-        <p
-          class="truncate text-xs text-zinc-500"
-          :title="download.release"
-        >
+        <p class="truncate text-xs text-zinc-500" :title="download.release">
           {{ download.release }}
         </p>
       </div>

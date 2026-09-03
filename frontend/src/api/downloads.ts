@@ -3,12 +3,7 @@ export interface Artwork {
   backdrop_url: string | null
 }
 
-export type DownloadStatus =
-  | 'downloading'
-  | 'import_pending'
-  | 'failed'
-  | 'completed'
-  | 'unknown'
+export type DownloadStatus = 'downloading' | 'import_pending' | 'failed' | 'completed' | 'unknown'
 
 export interface Download {
   id: string
@@ -20,7 +15,7 @@ export interface Download {
 
   title: string
   release: string | null
-  
+
   artwork: Artwork | null
 
   season: number | null
@@ -46,9 +41,7 @@ export async function getDownloads(): Promise<Download[]> {
   const response = await fetch('/api/downloads')
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to fetch downloads: ${response.status}`,
-    )
+    throw new Error(`Failed to fetch downloads: ${response.status}`)
   }
 
   return response.json()

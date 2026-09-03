@@ -1,17 +1,31 @@
 from itsdangerous import BadSignature, URLSafeSerializer
 
-from app.config import settings
+_serializer: URLSafeSerializer | None = None
 
 
-serializer = URLSafeSerializer(
-    settings.session_secret,
-)
+def initialize_session_serializer(
+    session_secret: str,
+) -> None:
+    global _serializer
+
+    _serializer = URLSafeSerializer(
+        session_secret,
+    )
+
+
+def get_serializer() -> URLSafeSerializer:
+    if _serializer is None:
+        raise RuntimeError(
+            "Session serializer has not been initialized.",
+        )
+
+    return _serializer
 
 
 def create_session_token(
     user_id: int,
 ) -> str:
-    return serializer.dumps(
+    return get_serializer().dumps(
         {
             "user_id": user_id,
         }
@@ -22,7 +36,7 @@ def get_user_id_from_token(
     token: str,
 ) -> int | None:
     try:
-        data = serializer.loads(token)
+        data = get_serializer().loads(token)
     except BadSignature:
         return None
 

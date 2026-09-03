@@ -1,4 +1,5 @@
 import asyncio
+
 import httpx
 
 from app.clients.radarr import RadarrClient
@@ -33,24 +34,16 @@ class DownloadService:
 
         downloads = []
 
-        downloads.extend(
-            await self._process_radarr_queue(radarr_queue)
-        )
+        downloads.extend(await self._process_radarr_queue(radarr_queue))
 
-        downloads.extend(
-            await self._process_sonarr_queue(sonarr_queue)
-        )
+        downloads.extend(await self._process_sonarr_queue(sonarr_queue))
 
         if is_admin:
-            requested_media = (
-                await self.requests.get_all_requested_media_lookup()
-            )
+            requested_media = await self.requests.get_all_requested_media_lookup()
 
             for download in downloads:
                 key = (
-                    "movie"
-                    if download.media_type == "movie"
-                    else "tv",
+                    "movie" if download.media_type == "movie" else "tv",
                     download.service_item_id,
                     download.season,
                 )
@@ -62,19 +55,15 @@ class DownloadService:
                     download.requested_by_username = requester.get("username")
 
         elif seerr_user_id is not None:
-            requested_media = (
-                await self.requests.get_requested_media_lookup(
-                    seerr_user_id
-                )
+            requested_media = await self.requests.get_requested_media_lookup(
+                seerr_user_id
             )
 
             filtered_downloads = []
 
             for download in downloads:
                 key = (
-                    "movie"
-                    if download.media_type == "movie"
-                    else "tv",
+                    "movie" if download.media_type == "movie" else "tv",
                     download.service_item_id,
                     download.season,
                 )
@@ -85,9 +74,7 @@ class DownloadService:
                     continue
 
                 download.requested_by_id = requester.get("id")
-                download.requested_by_username = requester.get(
-                    "username"
-                )
+                download.requested_by_username = requester.get("username")
 
                 filtered_downloads.append(download)
 
@@ -142,9 +129,7 @@ class DownloadService:
                     size=size,
                     size_remaining=size_remaining,
                     time_left=item.get("timeleft"),
-                    estimated_completion_time=item.get(
-                        "estimatedCompletionTime"
-                    ),
+                    estimated_completion_time=item.get("estimatedCompletionTime"),
                     download_client=item.get("downloadClient"),
                     protocol=item.get("protocol"),
                     indexer=item.get("indexer"),
@@ -190,9 +175,7 @@ class DownloadService:
 
             if episode_id:
                 try:
-                    episode_data = await self.sonarr.get_episode(
-                        episode_id
-                    )
+                    episode_data = await self.sonarr.get_episode(episode_id)
                     episode = episode_data.get("episodeNumber")
                 except httpx.HTTPError:
                     pass
@@ -215,9 +198,7 @@ class DownloadService:
                     size=size,
                     size_remaining=size_remaining,
                     time_left=item.get("timeleft"),
-                    estimated_completion_time=item.get(
-                        "estimatedCompletionTime"
-                    ),
+                    estimated_completion_time=item.get("estimatedCompletionTime"),
                     download_client=item.get("downloadClient"),
                     protocol=item.get("protocol"),
                     indexer=item.get("indexer"),
@@ -226,7 +207,6 @@ class DownloadService:
             )
 
         return downloads
-    
 
     @staticmethod
     def _calculate_progress(

@@ -4,12 +4,7 @@ import { onMounted, ref } from 'vue'
 import AppLayout from '../../components/AppLayout.vue'
 import ServiceSettingsForm from '../../components/ServiceSettingsForm.vue'
 
-import {
-  getSettings,
-  testRadarrConnection,
-  updateSettings,
-} from '../../api/settings.ts'
-
+import { getSettings, testRadarrConnection, updateSettings } from '../../api/settings.ts'
 
 const url = ref('')
 const configured = ref(false)
@@ -24,10 +19,7 @@ const success = ref('')
 const connectionMessage = ref('')
 const connectionSuccess = ref(false)
 
-const form = ref<
-  InstanceType<typeof ServiceSettingsForm> | null
->(null)
-
+const form = ref<InstanceType<typeof ServiceSettingsForm> | null>(null)
 
 async function loadSettings() {
   loading.value = true
@@ -45,11 +37,7 @@ async function loadSettings() {
   }
 }
 
-
-async function testConnection(payload: {
-  url: string
-  apiKey: string
-}) {
+async function testConnection(payload: { url: string; apiKey: string }) {
   error.value = ''
   success.value = ''
   connectionMessage.value = ''
@@ -57,27 +45,19 @@ async function testConnection(payload: {
   testing.value = true
 
   try {
-    const result = await testRadarrConnection(
-      payload.url,
-      payload.apiKey,
-    )
+    const result = await testRadarrConnection(payload.url, payload.apiKey)
 
     connectionSuccess.value = result.success
     connectionMessage.value = result.message
   } catch {
     connectionSuccess.value = false
-    connectionMessage.value =
-      'Unable to test the Radarr connection.'
+    connectionMessage.value = 'Unable to test the Radarr connection.'
   } finally {
     testing.value = false
   }
 }
 
-
-async function save(payload: {
-  url: string
-  apiKey?: string
-}) {
+async function save(payload: { url: string; apiKey?: string }) {
   error.value = ''
   success.value = ''
 
@@ -87,9 +67,7 @@ async function save(payload: {
     await updateSettings({
       radarr: {
         url: payload.url,
-        ...(payload.apiKey
-          ? { api_key: payload.apiKey }
-          : {}),
+        ...(payload.apiKey ? { api_key: payload.apiKey } : {}),
       },
     })
 
@@ -98,52 +76,35 @@ async function save(payload: {
 
     form.value?.clearApiKey()
 
-    success.value =
-      'Radarr settings saved successfully.'
+    success.value = 'Radarr settings saved successfully.'
   } catch {
-    error.value =
-      'Unable to save Radarr settings.'
+    error.value = 'Unable to save Radarr settings.'
   } finally {
     saving.value = false
   }
 }
 
-
 onMounted(loadSettings)
 </script>
 
-
 <template>
   <AppLayout>
-
     <template #header>
-      <h1 class="text-lg font-semibold">
-        Radarr
-      </h1>
+      <h1 class="text-lg font-semibold">Radarr</h1>
     </template>
 
-
     <div class="mx-auto max-w-3xl">
-
       <div class="mb-8">
-        <h2 class="text-2xl font-semibold">
-          Radarr
-        </h2>
+        <h2 class="text-2xl font-semibold">Radarr</h2>
 
-        <p class="mt-1 text-sm text-zinc-400">
-          Configure your Radarr connection.
-        </p>
+        <p class="mt-1 text-sm text-zinc-400">Configure your Radarr connection.</p>
       </div>
 
-
       <div v-if="loading">
-        <div
-          class="rounded-xl border border-zinc-800 bg-zinc-900 p-6 text-sm text-zinc-500"
-        >
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-6 text-sm text-zinc-500">
           Loading settings...
         </div>
       </div>
-
 
       <ServiceSettingsForm
         v-else
@@ -161,8 +122,6 @@ onMounted(loadSettings)
         @save="save"
         @test="testConnection"
       />
-
     </div>
-
   </AppLayout>
 </template>

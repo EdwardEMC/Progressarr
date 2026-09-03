@@ -34,18 +34,15 @@ def create_sonarr_client(
         api_key=config.sonarr_api_key,
     )
 
+
 def create_seerr_client(
     config: ServiceConfig,
 ) -> SeerrClient:
     if not config.seerr_url:
-        raise RuntimeError(
-            "Seerr URL has not been configured."
-        )
+        raise RuntimeError("Seerr URL has not been configured.")
 
     if not config.seerr_api_key:
-        raise RuntimeError(
-            "Seerr API key has not been configured."
-        )
+        raise RuntimeError("Seerr API key has not been configured.")
 
     return SeerrClient(
         base_url=config.seerr_url,

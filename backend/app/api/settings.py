@@ -1,6 +1,5 @@
 import httpx
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
 from app.auth.dependencies import get_current_user
@@ -39,6 +38,7 @@ class SonarrSettingsUpdate(BaseModel):
 class SeerrSettingsUpdate(BaseModel):
     url: str = Field(min_length=1)
     api_key: str | None = None
+
 
 class JellyfinSettingsUpdate(BaseModel):
     url: str = Field(min_length=1)
@@ -225,7 +225,7 @@ async def _test_connection(
     except httpx.HTTPStatusError as exc:
         return ConnectionTestResponse(
             success=False,
-            message=(f"{service} returned HTTP " f"{exc.response.status_code}."),
+            message=(f"{service} returned HTTP {exc.response.status_code}."),
         )
 
     except httpx.HTTPError:
@@ -365,7 +365,7 @@ async def _test_jellyfin_connection(
     except httpx.HTTPStatusError as exc:
         return ConnectionTestResponse(
             success=False,
-            message=(f"Jellyfin returned HTTP " f"{exc.response.status_code}."),
+            message=(f"Jellyfin returned HTTP {exc.response.status_code}."),
         )
 
     except httpx.HTTPError:

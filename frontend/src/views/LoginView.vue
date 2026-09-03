@@ -4,14 +4,12 @@ import { useRouter } from 'vue-router'
 
 import { useAuthStore } from '../stores/auth'
 
-
 const router = useRouter()
 const auth = useAuthStore()
 
 const username = ref('')
 const password = ref('')
 const error = ref('')
-
 
 async function handleLogin() {
   error.value = ''
@@ -22,10 +20,7 @@ async function handleLogin() {
   }
 
   try {
-    await auth.login(
-      username.value,
-      password.value,
-    )
+    await auth.login(username.value, password.value)
 
     await router.push({
       name: 'dashboard',
@@ -36,41 +31,24 @@ async function handleLogin() {
 }
 </script>
 
-
 <template>
-  <main
-    class="min-h-screen flex items-center justify-center bg-zinc-950 px-4"
-  >
+  <main class="min-h-screen flex items-center justify-center bg-zinc-950 px-4">
     <div class="w-full max-w-md">
-
       <div class="mb-8 text-center">
-        <h1 class="text-3xl font-semibold text-white">
-          Progressarr
-        </h1>
+        <h1 class="text-3xl font-semibold text-white">Progressarr</h1>
 
-        <p class="mt-2 text-sm text-zinc-400">
-          Sign in to manage your configuration
-        </p>
+        <p class="mt-2 text-sm text-zinc-400">Sign in to manage your configuration</p>
       </div>
-
 
       <form
         class="rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl"
         @submit.prevent="handleLogin"
       >
-
-        <h2 class="text-xl font-medium text-white">
-          Sign in
-        </h2>
-
+        <h2 class="text-xl font-medium text-white">Sign in</h2>
 
         <div class="mt-6 space-y-5">
-
           <div>
-            <label
-              for="username"
-              class="mb-2 block text-sm font-medium text-zinc-300"
-            >
+            <label for="username" class="mb-2 block text-sm font-medium text-zinc-300">
               Username
             </label>
 
@@ -84,12 +62,8 @@ async function handleLogin() {
             />
           </div>
 
-
           <div>
-            <label
-              for="password"
-              class="mb-2 block text-sm font-medium text-zinc-300"
-            >
+            <label for="password" class="mb-2 block text-sm font-medium text-zinc-300">
               Password
             </label>
 
@@ -103,14 +77,12 @@ async function handleLogin() {
             />
           </div>
 
-
           <div
             v-if="error"
             class="rounded-lg border border-red-900/50 bg-red-950/30 px-3 py-2.5 text-sm text-red-400"
           >
             {{ error }}
           </div>
-
 
           <button
             type="submit"
@@ -119,10 +91,8 @@ async function handleLogin() {
           >
             {{ auth.loading ? 'Signing in...' : 'Sign in' }}
           </button>
-
         </div>
       </form>
-
     </div>
   </main>
 </template>

@@ -7,11 +7,10 @@ from app.auth.service import AuthService
 from app.auth.session import create_session_token
 from app.config import settings
 from app.database import async_session
-from app.db_models import User, ServiceConfig
+from app.db_models import ServiceConfig, User
 from app.services.client_factory import create_jellyfin_client, create_seerr_client
 from app.services.jellyfin_service import JellyfinService
 from app.services.seerr_service import SeerrService
-
 
 router = APIRouter(
     prefix="/api/auth",
@@ -44,9 +43,7 @@ async def login(
     response: Response,
 ) -> LoginResponse:
     async with async_session() as session:
-        result = await session.execute(
-            select(ServiceConfig).limit(1)
-        )
+        result = await session.execute(select(ServiceConfig).limit(1))
 
         config = result.scalar_one_or_none()
 

@@ -12,17 +12,13 @@ class RequestService:
         self,
         seerr_user_id: int,
     ) -> list[dict]:
-        return await self.seerr.get_requests_by_user(
-            seerr_user_id
-        )
+        return await self.seerr.get_requests_by_user(seerr_user_id)
 
     async def get_requested_media(
         self,
         seerr_user_id: int,
     ) -> list[dict]:
-        requests = await self.get_user_requests(
-            seerr_user_id
-        )
+        requests = await self.get_user_requests(seerr_user_id)
 
         media = []
 
@@ -33,9 +29,7 @@ class RequestService:
                 continue
 
             media_type = request_media.get("mediaType")
-            external_service_id = request_media.get(
-                "externalServiceId"
-            )
+            external_service_id = request_media.get("externalServiceId")
 
             if media_type not in {"movie", "tv"}:
                 continue
@@ -65,9 +59,7 @@ class RequestService:
         service_item_id: int,
         season: int | None = None,
     ) -> dict | None:
-        media = await self.get_requested_media(
-            seerr_user_id
-        )
+        media = await self.get_requested_media(seerr_user_id)
 
         for request in media:
             if request["media_type"] != media_type:
@@ -93,13 +85,9 @@ class RequestService:
         self,
         seerr_user_id: int,
     ) -> dict[tuple[str, int, int | None], dict]:
-        media = await self.get_requested_media(
-            seerr_user_id
-        )
+        media = await self.get_requested_media(seerr_user_id)
 
-        return self._build_requested_media_lookup(
-            media
-        )
+        return self._build_requested_media_lookup(media)
 
     async def get_all_requested_media_lookup(
         self,
@@ -115,9 +103,7 @@ class RequestService:
                 continue
 
             media_type = request_media.get("mediaType")
-            service_item_id = request_media.get(
-                "externalServiceId"
-            )
+            service_item_id = request_media.get("externalServiceId")
 
             if media_type not in {"movie", "tv"}:
                 continue
@@ -129,9 +115,7 @@ class RequestService:
                 {
                     "media_type": media_type,
                     "service_item_id": service_item_id,
-                    "requested_by": request.get(
-                        "requestedBy"
-                    ),
+                    "requested_by": request.get("requestedBy"),
                     "seasons": request.get(
                         "seasons",
                         [],
@@ -139,9 +123,7 @@ class RequestService:
                 }
             )
 
-        return self._build_requested_media_lookup(
-            media
-        )
+        return self._build_requested_media_lookup(media)
 
     def _build_requested_media_lookup(
         self,

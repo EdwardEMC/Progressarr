@@ -16,32 +16,25 @@ class AuthService:
         self.session = session
         self.jellyfin = jellyfin
         self.seerr = seerr
-        
 
     async def get_user_by_jellyfin_id(
         self,
         jellyfin_user_id: str,
     ) -> User | None:
         result = await self.session.execute(
-            select(User).where(
-                User.jellyfin_user_id == jellyfin_user_id
-            )
+            select(User).where(User.jellyfin_user_id == jellyfin_user_id)
         )
 
         return result.scalar_one_or_none()
-
 
     async def get_user_by_seerr_id(
         self,
         seerr_user_id: int,
     ) -> User | None:
         result = await self.session.execute(
-            select(User).where(
-                User.seerr_user_id == seerr_user_id
-            )
+            select(User).where(User.seerr_user_id == seerr_user_id)
         )
         return result.scalar_one_or_none()
-
 
     async def authenticate(
         self,
@@ -49,9 +42,7 @@ class AuthService:
         password: str,
     ) -> User | None:
         if self.jellyfin is None:
-            raise RuntimeError(
-                "Jellyfin authentication is not configured."
-            )
+            raise RuntimeError("Jellyfin authentication is not configured.")
 
         try:
             result = await self.jellyfin.authenticate_user(
@@ -75,9 +66,7 @@ class AuthService:
 
         if self.seerr is not None:
             try:
-                seerr_user = await self.seerr.get_user_by_jellyfin_id(
-                    jellyfin_user_id
-                )
+                seerr_user = await self.seerr.get_user_by_jellyfin_id(jellyfin_user_id)
 
                 if seerr_user is not None:
                     seerr_user_id = seerr_user.get("id")
@@ -86,9 +75,7 @@ class AuthService:
                 # Seerr being unavailable or unconfigured should not prevent Jellyfin login.
                 pass
 
-        user = await self.get_user_by_jellyfin_id(
-            jellyfin_user_id
-        )
+        user = await self.get_user_by_jellyfin_id(jellyfin_user_id)
 
         is_admin = bool(
             jellyfin_user.get("Policy", {}).get(
@@ -118,8 +105,6 @@ class AuthService:
         return user
 
     async def has_users(self) -> bool:
-        result = await self.session.execute(
-            select(User.id).limit(1)
-        )
+        result = await self.session.execute(select(User.id).limit(1))
 
         return result.scalar_one_or_none() is not None

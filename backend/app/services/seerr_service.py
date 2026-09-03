@@ -12,9 +12,7 @@ class SeerrService:
         self,
         jellyfin_user_id: str,
     ) -> dict | None:
-        return await self.seerr.get_user_by_jellyfin_id(
-            jellyfin_user_id
-        )
+        return await self.seerr.get_user_by_jellyfin_id(jellyfin_user_id)
 
     async def get_requests(self) -> list[dict]:
         return await self.seerr.get_requests()
@@ -23,6 +21,4 @@ class SeerrService:
         self,
         user_id: int,
     ) -> list[dict]:
-        return await self.seerr.get_requests_by_user(
-            user_id
-        )
+        return await self.seerr.get_requests_by_user(user_id)

@@ -67,10 +67,7 @@ class SonarrClient:
                 parts = image_url.lower().split("mediacover")
                 image_url = f"/api/v3/mediacover{parts[1]}"
 
-            full_url = (
-                f"{self.base_url.rstrip('/')}/"
-                f"{image_url.lstrip('/')}"
-            )
+            full_url = f"{self.base_url.rstrip('/')}/{image_url.lstrip('/')}"
 
             response = await client.get(
                 full_url,
@@ -82,8 +79,7 @@ class SonarrClient:
 
             if "login" in str(response.url):
                 raise httpx.HTTPError(
-                    "Sonarr rejected authentication "
-                    "and redirected to login."
+                    "Sonarr rejected authentication and redirected to login."
                 )
 
             response.raise_for_status()

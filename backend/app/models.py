@@ -48,4 +48,3 @@ class Download(BaseModel):
     indexer: str | None = None
 
     error_message: str | None = None
-
