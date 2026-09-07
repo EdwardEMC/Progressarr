@@ -3,12 +3,22 @@ import { onMounted, onUnmounted, ref } from 'vue'
 
 import DownloadCard from '../components/DownloadCard.vue'
 import { getDownloads, type Download } from '../api/downloads'
+import type { DownloadView } from '../types/download.ts'
 
 const downloads = ref<Download[]>([])
 const loading = ref(true)
 const refreshing = ref(false)
 const error = ref<string | null>(null)
 const lastUpdated = ref<Date | null>(null)
+
+const downloadView = ref<DownloadView>(
+  (localStorage.getItem('progressarr-download-view') as DownloadView) || 'card',
+)
+
+function setDownloadView(view: DownloadView): void {
+  downloadView.value = view
+  localStorage.setItem('progressarr-download-view', view)
+}
 
 let pollingInterval: ReturnType<typeof setInterval> | undefined
 
@@ -77,7 +87,7 @@ onUnmounted(() => {
         <div class="flex items-center gap-4">
           <!-- Progressarr mark -->
           <div
-            class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#aa5cc3] to-[#00a4dc] shadow-lg shadow-[#00a4dc]/10"
+            class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-[#aa5cc3] to-[#00a4dc] shadow-lg shadow-[#00a4dc]/10"
           >
             <svg viewBox="0 0 24 24" fill="none" class="h-6 w-6 text-white">
               <path
@@ -131,15 +141,146 @@ onUnmounted(() => {
     <main class="mx-auto max-w-7xl px-6 py-10 lg:px-8">
       <!-- Page heading -->
       <section class="mb-10">
-        <p class="mb-2 text-sm font-medium uppercase tracking-widest text-[#00a4dc]">
-          Media server
-        </p>
+        <div class="flex items-end justify-between gap-6">
+          <div>
+            <p class="mb-2 text-sm font-medium uppercase tracking-widest text-[#00a4dc]">
+              Media server
+            </p>
 
-        <h2 class="text-3xl font-semibold tracking-tight sm:text-4xl">Downloads</h2>
+            <h2 class="text-3xl font-semibold tracking-tight sm:text-4xl">Downloads</h2>
 
-        <p class="mt-2 max-w-2xl text-sm text-zinc-500">
-          Track movies and episodes as they move through your download and import pipeline.
-        </p>
+            <p class="mt-2 max-w-2xl text-sm text-zinc-500">
+              Track movies and episodes as they move through your download and import pipeline.
+            </p>
+          </div>
+
+          <!-- View switcher -->
+          <div class="flex shrink-0 items-center rounded-lg border border-white/8 bg-[#181818] p-1">
+            <!-- Card -->
+            <button
+              type="button"
+              title="Card view"
+              aria-label="Card view"
+              class="rounded-md p-2 transition"
+              :class="
+                downloadView === 'card'
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300'
+              "
+              @click="setDownloadView('card')"
+            >
+              <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4">
+                <rect
+                  x="3"
+                  y="4"
+                  width="18"
+                  height="16"
+                  rx="2"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                />
+                <path d="M3 10H21M9 10V20" stroke="currentColor" stroke-width="1.8" />
+              </svg>
+            </button>
+
+            <!-- Grid -->
+            <button
+              type="button"
+              title="Grid view"
+              aria-label="Grid view"
+              class="rounded-md p-2 transition"
+              :class="
+                downloadView === 'grid'
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300'
+              "
+              @click="setDownloadView('grid')"
+            >
+              <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4">
+                <rect
+                  x="3"
+                  y="3"
+                  width="7"
+                  height="7"
+                  rx="1"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                />
+                <rect
+                  x="14"
+                  y="3"
+                  width="7"
+                  height="7"
+                  rx="1"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                />
+                <rect
+                  x="3"
+                  y="14"
+                  width="7"
+                  height="7"
+                  rx="1"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                />
+                <rect
+                  x="14"
+                  y="14"
+                  width="7"
+                  height="7"
+                  rx="1"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                />
+              </svg>
+            </button>
+
+            <!-- Row -->
+            <button
+              type="button"
+              title="Row view"
+              aria-label="Row view"
+              class="rounded-md p-2 transition"
+              :class="
+                downloadView === 'row'
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300'
+              "
+              @click="setDownloadView('row')"
+            >
+              <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4">
+                <rect
+                  x="3"
+                  y="4"
+                  width="18"
+                  height="4"
+                  rx="1"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                />
+                <rect
+                  x="3"
+                  y="10"
+                  width="18"
+                  height="4"
+                  rx="1"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                />
+                <rect
+                  x="3"
+                  y="16"
+                  width="18"
+                  height="4"
+                  rx="1"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
       </section>
 
       <!-- Loading -->
@@ -184,11 +325,22 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <div v-if="activeDownloads().length" class="grid gap-6 lg:grid-cols-2">
+          <div
+            v-if="activeDownloads().length"
+            :class="{
+              'grid gap-6 lg:grid-cols-2': downloadView === 'card',
+
+              'grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5':
+                downloadView === 'grid',
+
+              'flex flex-col gap-3': downloadView === 'row',
+            }"
+          >
             <DownloadCard
               v-for="download in activeDownloads()"
               :key="download.id"
               :download="download"
+              :view="downloadView"
             />
           </div>
 
@@ -220,11 +372,21 @@ onUnmounted(() => {
             <p class="mt-1 text-sm text-zinc-600">Recently finished downloads</p>
           </div>
 
-          <div class="grid gap-4 lg:grid-cols-2">
+          <div
+            :class="{
+              'grid gap-6 lg:grid-cols-2': downloadView === 'card',
+
+              'grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5':
+                downloadView === 'grid',
+
+              'flex flex-col gap-3': downloadView === 'row',
+            }"
+          >
             <DownloadCard
               v-for="download in completedDownloads()"
               :key="download.id"
               :download="download"
+              :view="downloadView"
             />
           </div>
         </section>
