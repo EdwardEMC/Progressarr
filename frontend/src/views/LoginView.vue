@@ -71,10 +71,7 @@ async function handleLogin() {
                   : 'text-zinc-500 hover:text-zinc-300',
               ]"
               :disabled="auth.loading"
-              @click="
-                loginType = 'jellyfin'
-                error = ''
-              "
+              @click="((loginType = 'jellyfin'), (error = ''))"
             >
               Jellyfin
             </button>
@@ -88,10 +85,7 @@ async function handleLogin() {
                   : 'text-zinc-500 hover:text-zinc-300',
               ]"
               :disabled="auth.loading"
-              @click="
-                loginType = 'admin'
-                error = ''
-              "
+              @click="((loginType = 'admin'), (error = ''))"
             >
               Administrator
             </button>

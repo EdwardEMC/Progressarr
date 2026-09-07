@@ -2,7 +2,6 @@ from fastapi import APIRouter, Cookie, HTTPException, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
-from app.auth.dependencies import get_current_user
 from app.auth.session import (
     create_admin_session_token,
     create_user_session_token,
@@ -21,6 +20,13 @@ router = APIRouter(
     prefix="/api/auth",
     tags=["authentication"],
 )
+
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    is_admin: bool
+    seerr_user_id: int | None
 
 
 class MeResponse(BaseModel):
