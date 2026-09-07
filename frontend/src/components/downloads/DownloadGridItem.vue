@@ -36,6 +36,30 @@ defineProps<{
       <h3 class="truncate text-sm font-medium text-white" :title="download.title">
         {{ download.title }}
       </h3>
+      
+      <p v-if="download.requestedBy" class="mt-1 text-sm text-zinc-500">
+        Requested by {{ download.requestedBy }}
+      </p>
+
+      <!-- Episode information -->
+      <div
+        v-if="
+          (download.mediaType === 'tv' || download.mediaType === 'episode') && (download.season !== null || download.episode !== null)
+        "
+        class="mt-1 text-sm text-zinc-400"
+      >
+        <span v-if="download.season !== null"> Season {{ download.season }} </span>
+
+        <span
+          v-if="download.season !== null && download.episode !== null"
+          class="mx-1 text-zinc-600"
+        >
+          •
+        </span>
+
+        <span v-if="download.episode !== null"> Episode {{ download.episode }} </span>
+      </div>
+
       <div class="mt-1 flex items-center justify-between gap-2 text-xs text-zinc-500">
         <span>{{ download.size }}</span> <span>{{ download.progress.toFixed(0) }}%</span>
       </div>

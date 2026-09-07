@@ -27,6 +27,34 @@ defineProps<{
           {{ download.status }}
         </span>
       </div>
+
+
+      <div class="flex mt-1 items-center text-xs gap-2">
+        <!-- Episode information -->
+        <div
+          v-if="
+            (download.mediaType === 'tv' || download.mediaType === 'episode') && (download.season !== null || download.episode !== null)
+          "
+          class="flex items-center text-zinc-400"
+        >
+          <span v-if="download.season !== null"> Season {{ download.season }} </span>
+
+          <span
+            v-if="download.season !== null && download.episode !== null"
+            class="mx-1 text-zinc-600"
+          >
+            •
+          </span>
+
+          <span v-if="download.episode !== null"> Episode {{ download.episode }} </span>
+        </div>
+
+        <p v-if="download.requestedBy" class="text-zinc-500">
+          Requested by {{ download.requestedBy }}
+        </p>
+      </div>
+
+
       <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
         <span v-if="download.downloadClient"> {{ download.downloadClient }} </span>
         <span v-if="download.indexer"> {{ download.indexer }} </span>

@@ -72,7 +72,7 @@ defineProps<{
         <!-- Episode information -->
         <div
           v-if="
-            download.mediaType === 'tv' && (download.season !== null || download.episode !== null)
+            (download.mediaType === 'tv' || download.mediaType === 'episode') && (download.season !== null || download.episode !== null)
           "
           class="mt-3 text-sm text-zinc-400"
         >
