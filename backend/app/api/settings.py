@@ -1,4 +1,3 @@
-import httpx
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
@@ -6,6 +5,13 @@ from app.auth.dependencies import get_current_user
 from app.database import async_session
 from app.db_models import User
 from app.services.config_service import ConfigService
+from app.services.connection_test_service import (
+    ConnectionTestRequest,
+    ConnectionTestResponse,
+    test_connection,
+    test_jellyfin_connection,
+    test_seerr_connection,
+)
 
 router = APIRouter(
     prefix="/api/settings",
@@ -50,16 +56,6 @@ class SettingsUpdate(BaseModel):
     sonarr: SonarrSettingsUpdate | None = None
     jellyfin: JellyfinSettingsUpdate | None = None
     seerr: SeerrSettingsUpdate | None = None
-
-
-class ConnectionTestRequest(BaseModel):
-    url: str = Field(min_length=1)
-    api_key: str = Field(min_length=1)
-
-
-class ConnectionTestResponse(BaseModel):
-    success: bool
-    message: str
 
 
 @router.get("", response_model=SettingsResponse)
@@ -156,7 +152,7 @@ async def test_radarr(
     payload: ConnectionTestRequest,
     user: User = Depends(get_current_user),
 ) -> ConnectionTestResponse:
-    return await _test_connection(
+    return await test_connection(
         url=payload.url,
         api_key=payload.api_key,
         service="Radarr",
@@ -171,68 +167,11 @@ async def test_sonarr(
     payload: ConnectionTestRequest,
     user: User = Depends(get_current_user),
 ) -> ConnectionTestResponse:
-    return await _test_connection(
+    return await test_connection(
         url=payload.url,
         api_key=payload.api_key,
         service="Sonarr",
     )
-
-
-async def _test_connection(
-    *,
-    url: str,
-    api_key: str,
-    service: str,
-) -> ConnectionTestResponse:
-    base_url = url.rstrip("/")
-
-    try:
-        async with httpx.AsyncClient(
-            timeout=10.0,
-        ) as client:
-            response = await client.get(
-                f"{base_url}/api/v3/system/status",
-                headers={
-                    "X-Api-Key": api_key,
-                },
-            )
-
-            if response.status_code == 401:
-                return ConnectionTestResponse(
-                    success=False,
-                    message=f"{service} rejected the API key.",
-                )
-
-            response.raise_for_status()
-
-            return ConnectionTestResponse(
-                success=True,
-                message=f"Successfully connected to {service}.",
-            )
-
-    except httpx.ConnectError:
-        return ConnectionTestResponse(
-            success=False,
-            message=f"Unable to connect to {service}.",
-        )
-
-    except httpx.TimeoutException:
-        return ConnectionTestResponse(
-            success=False,
-            message=f"{service} connection timed out.",
-        )
-
-    except httpx.HTTPStatusError as exc:
-        return ConnectionTestResponse(
-            success=False,
-            message=(f"{service} returned HTTP {exc.response.status_code}."),
-        )
-
-    except httpx.HTTPError:
-        return ConnectionTestResponse(
-            success=False,
-            message=f"Unable to communicate with {service}.",
-        )
 
 
 @router.post(
@@ -243,66 +182,10 @@ async def test_seerr(
     payload: ConnectionTestRequest,
     user: User = Depends(get_current_user),
 ) -> ConnectionTestResponse:
-    return await _test_seerr_connection(
+    return await test_seerr_connection(
         url=payload.url,
         api_key=payload.api_key,
     )
-
-
-async def _test_seerr_connection(
-    *,
-    url: str,
-    api_key: str,
-) -> ConnectionTestResponse:
-    base_url = url.rstrip("/")
-
-    try:
-        async with httpx.AsyncClient(
-            timeout=10.0,
-        ) as client:
-            response = await client.get(
-                f"{base_url}/api/v1/status",
-                headers={
-                    "X-Api-Key": api_key,
-                },
-            )
-
-            if response.status_code in {401, 403}:
-                return ConnectionTestResponse(
-                    success=False,
-                    message="Seerr rejected the API key.",
-                )
-
-            response.raise_for_status()
-
-            return ConnectionTestResponse(
-                success=True,
-                message="Successfully connected to Seerr.",
-            )
-
-    except httpx.ConnectError:
-        return ConnectionTestResponse(
-            success=False,
-            message="Unable to connect to Seerr.",
-        )
-
-    except httpx.TimeoutException:
-        return ConnectionTestResponse(
-            success=False,
-            message="Seerr connection timed out.",
-        )
-
-    except httpx.HTTPStatusError as exc:
-        return ConnectionTestResponse(
-            success=False,
-            message=f"Seerr returned HTTP {exc.response.status_code}.",
-        )
-
-    except httpx.HTTPError:
-        return ConnectionTestResponse(
-            success=False,
-            message="Unable to communicate with Seerr.",
-        )
 
 
 @router.post(
@@ -311,65 +194,8 @@ async def _test_seerr_connection(
 )
 async def test_jellyfin(
     payload: ConnectionTestRequest,
-    user: User = Depends(get_current_user),
 ) -> ConnectionTestResponse:
-    return await _test_jellyfin_connection(
+    return await test_jellyfin_connection(
         url=payload.url,
         api_key=payload.api_key,
     )
-
-
-async def _test_jellyfin_connection(
-    *,
-    url: str,
-    api_key: str,
-) -> ConnectionTestResponse:
-    base_url = url.rstrip("/")
-
-    try:
-        async with httpx.AsyncClient(
-            timeout=10.0,
-        ) as client:
-            response = await client.get(
-                f"{base_url}/System/Info",
-                headers={
-                    "X-Emby-Token": api_key,
-                },
-            )
-
-            if response.status_code in {401, 403}:
-                return ConnectionTestResponse(
-                    success=False,
-                    message="Jellyfin rejected the API key.",
-                )
-
-            response.raise_for_status()
-
-            return ConnectionTestResponse(
-                success=True,
-                message="Successfully connected to Jellyfin.",
-            )
-
-    except httpx.ConnectError:
-        return ConnectionTestResponse(
-            success=False,
-            message="Unable to connect to Jellyfin.",
-        )
-
-    except httpx.TimeoutException:
-        return ConnectionTestResponse(
-            success=False,
-            message="Jellyfin connection timed out.",
-        )
-
-    except httpx.HTTPStatusError as exc:
-        return ConnectionTestResponse(
-            success=False,
-            message=(f"Jellyfin returned HTTP {exc.response.status_code}."),
-        )
-
-    except httpx.HTTPError:
-        return ConnectionTestResponse(
-            success=False,
-            message="Unable to communicate with Jellyfin.",
-        )

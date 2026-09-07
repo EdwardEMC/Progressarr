@@ -6,18 +6,29 @@ import SettingsView from '../views/settings/SettingsView.vue'
 import RadarrSettingsView from '../views/settings/RadarrSettingsView.vue'
 import SonarrSettingsView from '../views/settings/SonarrSettingsView.vue'
 import SeerrSettings from '../views/settings/SeerrSettingsView.vue'
+import SetupView from '../views/SetupView.vue'
 import JellyfinSettingsView from '../views/settings/JellyfinSettingsView.vue'
 
 import { useAuthStore } from '../stores/auth'
+import { useSetupStore } from '../stores/setup'
 
 const router = createRouter({
   history: createWebHistory(),
 
   routes: [
     {
+      path: '/setup',
+      name: 'setup',
+      component: SetupView,
+    },
+
+    {
       path: '/',
       name: 'dashboard',
       component: DashboardView,
+      meta: {
+        requiresAuth: true,
+      },
     },
 
     {
@@ -55,6 +66,7 @@ const router = createRouter({
 
     {
       path: '/settings/seerr',
+      name: 'settings-seerr',
       component: SeerrSettings,
       meta: {
         requiresAuth: true,
@@ -74,6 +86,23 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
+  const setup = useSetupStore()
+
+  if (setup.setupRequired === null) {
+    await setup.checkSetup()
+  }
+
+  if (setup.setupRequired && to.name !== 'setup') {
+    return {
+      name: 'setup',
+    }
+  }
+
+  if (!setup.setupRequired && to.name === 'setup') {
+    return {
+      name: 'login',
+    }
+  }
 
   if (!auth.isAuthenticated && !auth.loading) {
     await auth.checkSession()

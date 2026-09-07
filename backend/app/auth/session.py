@@ -22,27 +22,34 @@ def get_serializer() -> URLSafeSerializer:
     return _serializer
 
 
-def create_session_token(
+def create_user_session_token(
     user_id: int,
 ) -> str:
     return get_serializer().dumps(
         {
+            "auth_type": "jellyfin",
             "user_id": user_id,
         }
     )
 
 
-def get_user_id_from_token(
+def create_admin_session_token() -> str:
+    return get_serializer().dumps(
+        {
+            "auth_type": "local_admin",
+        }
+    )
+
+
+def get_session_data(
     token: str,
-) -> int | None:
+) -> dict[str, object] | None:
     try:
         data = get_serializer().loads(token)
     except BadSignature:
         return None
 
-    user_id = data.get("user_id")
-
-    if not isinstance(user_id, int):
+    if not isinstance(data, dict):
         return None
 
-    return user_id
+    return data
