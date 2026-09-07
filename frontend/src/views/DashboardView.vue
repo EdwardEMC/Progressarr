@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import DownloadCard from '../components/DownloadCard.vue'
+import DownloadFilters from '../components/DownloadFilters.vue'
 import { getDownloads, type Download } from '../api/downloads'
 import type { DownloadView } from '../types/download.ts'
+import type { DownloadFilterState } from '../interfaces/filter.ts'
 
 const downloads = ref<Download[]>([])
 const loading = ref(true)
@@ -14,6 +16,19 @@ const lastUpdated = ref<Date | null>(null)
 const downloadView = ref<DownloadView>(
   (localStorage.getItem('progressarr-download-view') as DownloadView) || 'card',
 )
+
+const filters = ref<DownloadFilterState>({
+  search: '',
+  status: '',
+  mediaType: '',
+  protocol: '',
+  downloadClient: '',
+  indexer: '',
+  requestedBy: '',
+  progress: '',
+  sortBy: 'title',
+  sortDirection: 'asc',
+})
 
 function setDownloadView(view: DownloadView): void {
   downloadView.value = view
@@ -43,15 +58,152 @@ async function loadDownloads(showLoading = true, showRefreshing = false): Promis
   }
 }
 
-function activeDownloads(): Download[] {
-  return downloads.value.filter(
-    (download) => download.status === 'downloading' || download.status === 'import_pending',
-  )
-}
+const filteredDownloads = computed(() => {
+  const result = downloads.value.filter((download) => {
+    const search = filters.value.search.trim().toLowerCase()
 
-function completedDownloads(): Download[] {
-  return downloads.value.filter((download) => download.status === 'completed')
-}
+    // Search is intentionally title-only.
+    if (search && !download.title.toLowerCase().includes(search)) {
+      return false
+    }
+
+    if (
+      filters.value.status &&
+      download.status !== filters.value.status
+    ) {
+      return false
+    }
+
+    if (
+      filters.value.mediaType &&
+      download.media_type !== filters.value.mediaType
+    ) {
+      return false
+    }
+
+    if (
+      filters.value.protocol &&
+      download.protocol !== filters.value.protocol
+    ) {
+      return false
+    }
+
+    if (
+      filters.value.downloadClient &&
+      download.download_client !== filters.value.downloadClient
+    ) {
+      return false
+    }
+
+    if (
+      filters.value.indexer &&
+      download.indexer !== filters.value.indexer
+    ) {
+      return false
+    }
+
+    if (
+      filters.value.requestedBy &&
+      download.requested_by_username !== filters.value.requestedBy
+    ) {
+      return false
+    }
+
+    if (filters.value.progress) {
+      const progress = download.progress
+
+      switch (filters.value.progress) {
+        case '0-25':
+          if (progress > 25) return false
+          break
+
+        case '25-50':
+          if (progress <= 25 || progress > 50) return false
+          break
+
+        case '50-75':
+          if (progress <= 50 || progress > 75) return false
+          break
+
+        case '75-99':
+          if (progress <= 75 || progress >= 100) return false
+          break
+
+        case '100':
+          if (progress < 100) return false
+          break
+      }
+    }
+
+    return true
+  })
+
+  const direction = filters.value.sortDirection === 'asc' ? 1 : -1
+
+  result.sort((a, b) => {
+    let comparison = 0
+
+    switch (filters.value.sortBy) {
+      case 'title':
+        comparison = a.title.localeCompare(b.title)
+        break
+
+      case 'status':
+        comparison = a.status.localeCompare(b.status)
+        break
+
+      case 'progress':
+        comparison = a.progress - b.progress
+        break
+
+      case 'size':
+        comparison = a.size - b.size
+        break
+
+      case 'size_remaining':
+        comparison = a.size_remaining - b.size_remaining
+        break
+
+      case 'media_type':
+        comparison = a.media_type.localeCompare(b.media_type)
+        break
+
+      case 'download_client':
+        comparison = (a.download_client ?? '').localeCompare(
+          b.download_client ?? '',
+        )
+        break
+
+      case 'indexer':
+        comparison = (a.indexer ?? '').localeCompare(b.indexer ?? '')
+        break
+
+      case 'requested_by':
+        comparison = (
+          a.requested_by_username ?? ''
+        ).localeCompare(b.requested_by_username ?? '')
+        break
+    }
+
+    return comparison * direction
+  })
+
+  return result
+})
+
+const activeDownloads = computed(() => {
+  return filteredDownloads.value.filter(
+    (download) =>
+      download.status === 'downloading' ||
+      download.status === 'import_pending',
+  )
+})
+
+const completedDownloads = computed(() => {
+  return filteredDownloads.value.filter(
+    (download) => download.status === 'completed',
+  )
+})
 
 function formatUpdated(): string {
   if (!lastUpdated.value) {
@@ -283,6 +435,12 @@ onUnmounted(() => {
         </div>
       </section>
 
+      <!-- Filtering and Sorting -->
+      <DownloadFilters
+        v-model="filters"
+        :downloads="downloads"
+      />
+
       <!-- Loading -->
       <div v-if="loading" class="flex min-h-64 items-center justify-center">
         <div class="text-center">
@@ -319,14 +477,14 @@ onUnmounted(() => {
               <h3 class="text-xl font-medium">In progress</h3>
 
               <p class="mt-1 text-sm text-zinc-600">
-                {{ activeDownloads().length }}
-                {{ activeDownloads().length === 1 ? 'item' : 'items' }}
+                {{ activeDownloads.length }}
+                {{ activeDownloads.length === 1 ? 'item' : 'items' }}
               </p>
             </div>
           </div>
 
           <div
-            v-if="activeDownloads().length"
+            v-if="activeDownloads.length"
             :class="{
               'grid gap-6 lg:grid-cols-2': downloadView === 'card',
 
@@ -337,7 +495,7 @@ onUnmounted(() => {
             }"
           >
             <DownloadCard
-              v-for="download in activeDownloads()"
+              v-for="download in activeDownloads"
               :key="download.id"
               :download="download"
               :view="downloadView"
@@ -346,26 +504,41 @@ onUnmounted(() => {
 
           <div v-else class="rounded-xl border border-white/6 bg-[#181818] px-6 py-12 text-center">
             <div
-              class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/5"
+              v-if="activeDownloads.length === 0"
+              class="rounded-xl border border-dashed border-zinc-800 bg-zinc-900/50 px-6 py-12 text-center"
             >
-              <svg viewBox="0 0 24 24" fill="none" class="h-6 w-6 text-zinc-600">
-                <path
-                  d="M12 3V21M3 12H21"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
+              <svg
+                class="mx-auto mb-4 h-10 w-10 text-zinc-600"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path d="M3 12h18" />
+                <path d="M12 3v18" />
               </svg>
+
+              <h3 class="text-sm font-medium text-zinc-300">
+                {{
+                  filteredDownloads.length === 0 && downloads.length > 0
+                    ? 'No downloads match your filters'
+                    : 'Nothing downloading'
+                }}
+              </h3>
+
+              <p class="mt-1 text-sm text-zinc-500">
+                {{
+                  filteredDownloads.length === 0 && downloads.length > 0
+                    ? 'Try adjusting your search or filters.'
+                    : 'There are currently no downloads in progress.'
+                }}
+              </p>
             </div>
-
-            <h3 class="font-medium text-zinc-300">Nothing downloading</h3>
-
-            <p class="mt-1 text-sm text-zinc-600">New requests will appear here.</p>
           </div>
         </section>
 
         <!-- Completed -->
-        <section v-if="completedDownloads().length" class="mt-12">
+        <section v-if="completedDownloads.length" class="mt-12">
           <div class="mb-5">
             <h3 class="text-xl font-medium">Recently completed</h3>
 
@@ -383,7 +556,7 @@ onUnmounted(() => {
             }"
           >
             <DownloadCard
-              v-for="download in completedDownloads()"
+              v-for="download in completedDownloads"
               :key="download.id"
               :download="download"
               :view="downloadView"
