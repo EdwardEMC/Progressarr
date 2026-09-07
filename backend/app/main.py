@@ -1,6 +1,7 @@
+import httpx
+
 from pathlib import Path
 
-import httpx
 from app.auth.dependencies import get_current_user
 from app.services.config_bootstrap import bootstrap_app_config, bootstrap_config
 from fastapi import Depends, FastAPI, HTTPException
@@ -10,6 +11,7 @@ from sqlalchemy import select
 from app.api.auth import router as auth_router
 from app.api.requests import router as requests_router
 from app.api.settings import router as settings_router
+from app.api.setup import router as setup_router
 from app.auth.session import initialize_session_serializer
 from app.database import async_session, init_database
 from app.db_models import ServiceConfig, User
@@ -50,9 +52,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
 app.include_router(requests_router)
-app.include_router(settings_router)
 app.include_router(auth_router)
+app.include_router(settings_router)
+app.include_router(setup_router)
 
 
 artwork = ArtworkService(

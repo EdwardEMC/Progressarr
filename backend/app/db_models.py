@@ -18,6 +18,16 @@ class AppConfig(Base):
         nullable=False,
     )
 
+    setup_complete: Mapped[bool] = mapped_column(
+        default=False,
+        nullable=False,
+    )
+
+    admin_password_hash: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+    )
+
 
 class ServiceConfig(Base):
     __tablename__ = "service_config"

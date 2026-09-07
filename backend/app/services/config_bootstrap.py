@@ -48,6 +48,7 @@ async def bootstrap_app_config(
 
     config = AppConfig(
         session_secret=session_secret,
+        setup_complete=False,
     )
 
     session.add(config)
