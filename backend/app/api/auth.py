@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Cookie, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
+from app.auth.context import AuthContext
+from app.auth.dependencies import get_current_auth
 from app.auth.session import (
     create_admin_session_token,
     create_user_session_token,
-    get_session_data,
 )
 from app.auth.service import AuthService
 from app.config import settings
@@ -45,13 +46,6 @@ class AdminLoginResponse(BaseModel):
 class LoginRequest(BaseModel):
     username: str = Field(min_length=1)
     password: str = Field(min_length=1)
-
-
-class UserResponse(BaseModel):
-    id: int
-    username: str
-    is_admin: bool
-    seerr_user_id: int | None
 
 
 class LoginResponse(BaseModel):
@@ -139,66 +133,28 @@ async def logout(
     response_model=MeResponse,
 )
 async def get_me(
-    progressarr_session: str | None = Cookie(
-        default=None,
-        alias=settings.session_cookie_name,
-    ),
+    auth: AuthContext = Depends(get_current_auth),
 ) -> MeResponse:
-    if not progressarr_session:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required.",
-        )
-
-    session_data = get_session_data(progressarr_session)
-
-    if session_data is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid session.",
-        )
-
-    auth_type = session_data.get("auth_type")
-
-    if auth_type == "local_admin":
+    if auth.is_local_admin:
         return MeResponse(
             auth_type="local_admin",
             user=None,
         )
 
-    if auth_type == "jellyfin":
-        user_id = session_data.get("user_id")
-
-        if not isinstance(user_id, int):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid session.",
-            )
-
-        async with async_session() as session:
-            result = await session.execute(select(User).where(User.id == user_id))
-
-            user = result.scalar_one_or_none()
-
-        if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User no longer exists.",
-            )
-
+    if auth.is_jellyfin and auth.user is not None:
         return MeResponse(
             auth_type="jellyfin",
             user=UserResponse(
-                id=user.id,
-                username=user.username,
-                is_admin=user.is_admin,
-                seerr_user_id=user.seerr_user_id,
+                id=auth.user.id,
+                username=auth.user.username,
+                is_admin=auth.user.is_admin,
+                seerr_user_id=auth.user.seerr_user_id,
             ),
         )
 
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid session type.",
+        detail="Invalid authentication context.",
     )
 
 

@@ -1,20 +1,21 @@
 import httpx
 
 from pathlib import Path
-
-from app.auth.dependencies import get_current_user
-from app.services.config_bootstrap import bootstrap_app_config, bootstrap_config
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from sqlalchemy import select
 
+from app.clients.radarr import RadarrClient
+from app.clients.sonarr import SonarrClient
 from app.api.auth import router as auth_router
 from app.api.requests import router as requests_router
 from app.api.settings import router as settings_router
 from app.api.setup import router as setup_router
+from app.auth.context import AuthContext
+from app.auth.dependencies import get_current_auth
 from app.auth.session import initialize_session_serializer
 from app.database import async_session, init_database
-from app.db_models import ServiceConfig, User
+from app.db_models import ServiceConfig
 from app.models import Download
 from app.services.artwork_service import ArtworkService
 from app.services.client_factory import (
@@ -23,6 +24,7 @@ from app.services.client_factory import (
     create_seerr_client,
     create_sonarr_client,
 )
+from app.services.config_bootstrap import bootstrap_app_config, bootstrap_config
 from app.services.download_service import DownloadService
 from app.services.jellyfin_service import JellyfinService
 from app.services.request_service import RequestService
@@ -104,7 +106,9 @@ async def get_jellyfin_system() -> dict:
 
 
 @app.get("/api/downloads", response_model=list[Download])
-async def get_downloads(user: User = Depends(get_current_user)) -> list[Download]:
+async def get_downloads(
+    auth: AuthContext = Depends(get_current_auth)
+) -> list[Download]:
     try:
         config = await get_service_config()
 
@@ -126,7 +130,8 @@ async def get_downloads(user: User = Depends(get_current_user)) -> list[Download
         )
 
         return await download_service.get_downloads(
-            seerr_user_id=user.seerr_user_id, is_admin=user.is_admin
+            seerr_user_id=auth.user.seerr_user_id if auth.user else None, 
+            is_admin=auth.is_admin,
         )
 
     except Exception as exc:
