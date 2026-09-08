@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router'
 
 import { useAuthStore } from '../stores/auth'
 
+import PasswordInput from '../components/PasswordInput.vue'
+
 const router = useRouter()
 const auth = useAuthStore()
 
@@ -124,12 +126,11 @@ async function handleLogin() {
                   Password
                 </label>
 
-                <input
+                <PasswordInput
                   id="jellyfin-password"
                   v-model="password"
-                  type="password"
+                  required
                   autocomplete="current-password"
-                  class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-white outline-none transition placeholder:text-zinc-600 focus:border-zinc-500"
                   :disabled="auth.loading"
                 />
               </div>
@@ -159,12 +160,11 @@ async function handleLogin() {
                   Administrator Password
                 </label>
 
-                <input
+                <PasswordInput
                   id="admin-password"
                   v-model="password"
-                  type="password"
+                  required
                   autocomplete="current-password"
-                  class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-white outline-none transition placeholder:text-zinc-600 focus:border-zinc-500"
                   :disabled="auth.loading"
                 />
 
