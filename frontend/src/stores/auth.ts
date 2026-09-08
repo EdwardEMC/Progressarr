@@ -125,13 +125,16 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout(): Promise<void> {
-    await fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    })
-
-    user.value = null
-    authType.value = null
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
+    } finally {
+      user.value = null
+      authType.value = null
+      initialized.value = true
+    }
   }
 
   return {

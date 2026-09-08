@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-from app.auth.dependencies import get_current_user
+from app.auth.context import AuthContext
+from app.auth.dependencies import require_admin
 from app.database import async_session
-from app.db_models import User
 from app.services.config_service import ConfigService
 from app.services.connection_test_service import (
     ConnectionTestRequest,
@@ -60,7 +60,7 @@ class SettingsUpdate(BaseModel):
 
 @router.get("", response_model=SettingsResponse)
 async def get_settings(
-    user: User = Depends(get_current_user),
+    _: AuthContext = Depends(require_admin),
 ) -> SettingsResponse:
     async with async_session() as session:
         service = ConfigService(session)
@@ -89,7 +89,7 @@ async def get_settings(
 @router.put("")
 async def update_settings(
     payload: SettingsUpdate,
-    user: User = Depends(get_current_user),
+    _: AuthContext = Depends(require_admin),
 ) -> SettingsResponse:
     async with async_session() as session:
         service = ConfigService(session)
@@ -150,7 +150,7 @@ async def update_settings(
 )
 async def test_radarr(
     payload: ConnectionTestRequest,
-    user: User = Depends(get_current_user),
+    _: AuthContext = Depends(require_admin),
 ) -> ConnectionTestResponse:
     return await test_connection(
         url=payload.url,
@@ -165,7 +165,7 @@ async def test_radarr(
 )
 async def test_sonarr(
     payload: ConnectionTestRequest,
-    user: User = Depends(get_current_user),
+    _: AuthContext = Depends(require_admin),
 ) -> ConnectionTestResponse:
     return await test_connection(
         url=payload.url,
@@ -180,7 +180,7 @@ async def test_sonarr(
 )
 async def test_seerr(
     payload: ConnectionTestRequest,
-    user: User = Depends(get_current_user),
+    _: AuthContext = Depends(require_admin),
 ) -> ConnectionTestResponse:
     return await test_seerr_connection(
         url=payload.url,
