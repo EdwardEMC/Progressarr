@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 
 import type { RecentImportFilterState } from '../../interfaces/filter'
+import SelectInput from '../inputs/SelectInput.vue';
 
 const props = defineProps<{
   filters: RecentImportFilterState
@@ -11,10 +12,11 @@ const emit = defineEmits<{
   'update:filters': [filters: RecentImportFilterState]
 }>()
 
-const expanded = ref(false)
+const filtersExpanded = ref(false)
 
 const hasActiveFilters = computed(() => {
   return (
+    props.filters.search.trim() !== '' ||
     props.filters.mediaType !== '' ||
     props.filters.source !== '' ||
     props.filters.quality !== '' ||
@@ -26,6 +28,22 @@ const hasActiveFilters = computed(() => {
   )
 })
 
+const activeFilterCount = computed(() => {
+  let count = 0
+
+  if (props.filters.search.trim()) count++
+  if (props.filters.mediaType) count++
+  if (props.filters.source) count++
+  if (props.filters.quality) count++
+  if (props.filters.season !== null) count++
+  if (props.filters.fromDate) count++
+  if (props.filters.toDate) count++
+  if (props.filters.sort !== 'imported_at') count++
+  if (props.filters.sortDirection !== 'desc') count++
+
+  return count
+})
+
 function updateFilter<K extends keyof RecentImportFilterState>(
   key: K,
   value: RecentImportFilterState[K],
@@ -34,6 +52,10 @@ function updateFilter<K extends keyof RecentImportFilterState>(
     ...props.filters,
     [key]: value,
   })
+}
+
+function toggleFilters(): void {
+  filtersExpanded.value = !filtersExpanded.value
 }
 
 function toggleSortDirection(): void {
@@ -61,170 +83,214 @@ function clearFilters(): void {
 </script>
 
 <template>
-  <section class="mb-6">
-    <!-- Search bar -->
-    <div class="flex items-center gap-2">
-      <div class="relative min-w-0 flex-1">
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600"
-        >
-          <circle
-            cx="11"
-            cy="11"
-            r="7"
+  <div class="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 shadow-xl">
+    <!-- Search / filter toggle -->
+    <div class="p-4">
+      <div class="flex items-center gap-3">
+        <!-- Search -->
+        <div class="relative flex-1">
+          <svg
+            class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500"
+            viewBox="0 0 24 24"
+            fill="none"
             stroke="currentColor"
-            stroke-width="1.7"
+            stroke-width="2"
+          >
+            <circle
+              cx="11"
+              cy="11"
+              r="7"
+            />
+            <path d="m20 20-4-4" />
+          </svg>
+
+          <input
+            :value="filters.search"
+            type="search"
+            placeholder="Search imports..."
+            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 py-2.5 pl-10 pr-4 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
+            @input="
+              updateFilter(
+                'search',
+                ($event.target as HTMLInputElement).value,
+              )
+            "
           />
+        </div>
 
-          <path
-            d="M16.5 16.5L21 21"
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linecap="round"
-          />
-        </svg>
-
-        <input
-          :value="filters.search"
-          type="search"
-          placeholder="Search imports..."
-          class="h-11 w-full rounded-xl border border-white/7 bg-[#181818] pl-9 pr-3 text-sm text-white outline-none placeholder:text-zinc-600 transition focus:border-white/15"
-          @input="
-            updateFilter(
-              'search',
-              ($event.target as HTMLInputElement).value,
-            )
-          "
-        />
-      </div>
-
-      <!-- Filter toggle -->
-      <button
-        type="button"
-        class="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/7 bg-[#181818] text-zinc-500 transition hover:border-white/12 hover:bg-white/5 hover:text-white"
-        :class="{
-          'border-white/15 text-white': expanded || hasActiveFilters,
-        }"
-        aria-label="Toggle filters"
-        :aria-expanded="expanded"
-        @click="expanded = !expanded"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          class="h-4.5 w-4.5"
-        >
-          <path
-            d="M4 6H20"
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linecap="round"
-          />
-
-          <path
-            d="M7 12H17"
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linecap="round"
-          />
-
-          <path
-            d="M10 18H14"
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linecap="round"
-          />
-        </svg>
-
-        <!-- Active filter indicator -->
+        <!-- Active filter count -->
         <span
-          v-if="hasActiveFilters"
-          class="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-emerald-400"
-        />
-      </button>
+          v-if="activeFilterCount"
+          class="hidden shrink-0 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-300 sm:block"
+        >
+          {{ activeFilterCount }}
+          {{ activeFilterCount === 1 ? 'filter' : 'filters' }}
+        </span>
+
+        <!-- Clear filters -->
+        <button
+          v-if="activeFilterCount"
+          type="button"
+          class="hidden shrink-0 text-sm text-zinc-400 transition hover:text-white sm:block"
+          @click="clearFilters"
+        >
+          Clear
+        </button>
+
+        <!-- Filter toggle -->
+        <button
+          type="button"
+          :aria-expanded="filtersExpanded"
+          aria-label="Toggle filters"
+          :title="filtersExpanded ? 'Hide filters' : 'Show filters'"
+          class="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border transition"
+          :class="
+            filtersExpanded || hasActiveFilters
+              ? 'border-purple-500/50 bg-purple-500/10 text-purple-300'
+              : 'border-zinc-700 bg-zinc-950 text-zinc-400 hover:border-zinc-600 hover:text-white'
+          "
+          @click="toggleFilters"
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M4 6h16" />
+            <path d="M7 12h10" />
+            <path d="M10 18h4" />
+          </svg>
+
+          <!-- Active indicator -->
+          <span
+            v-if="activeFilterCount"
+            class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-purple-500 px-1 text-[10px] font-bold text-white"
+          >
+            {{ activeFilterCount }}
+          </span>
+        </button>
+      </div>
     </div>
 
-    <!-- Expanded filters -->
+    <!-- Advanced filters -->
     <div
-      v-if="expanded"
-      class="mt-3 rounded-xl border border-white/6 bg-[#181818] p-4"
+      v-if="filtersExpanded"
+      class="border-t border-zinc-800 p-4"
     >
-      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Media type -->
-        <select
-          :value="filters.mediaType"
-          class="h-10 rounded-lg border border-white/7 bg-[#202020] px-3 text-sm text-zinc-300 outline-none focus:border-white/15"
-          @change="
-            updateFilter(
-              'mediaType',
-              ($event.target as HTMLSelectElement).value,
-            )
-          "
-        >
-          <option value="">All media</option>
-          <option value="movie">Movies</option>
-          <option value="episode">Episodes</option>
-        </select>
+        <label class="block">
+          <span
+            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
+          >
+            Media type
+          </span>
+
+          <SelectInput
+            :model-value="filters.mediaType"
+            @update:model-value="updateFilter('mediaType', $event)"
+          >
+            <option value="">
+              All media
+            </option>
+
+            <option value="movie">
+              Movies
+            </option>
+
+            <option value="episode">
+              Episodes
+            </option>
+          </SelectInput>
+        </label>
 
         <!-- Source -->
-        <select
-          :value="filters.source"
-          class="h-10 rounded-lg border border-white/7 bg-[#202020] px-3 text-sm text-zinc-300 outline-none focus:border-white/15"
-          @change="
-            updateFilter(
-              'source',
-              ($event.target as HTMLSelectElement).value,
-            )
-          "
-        >
-          <option value="">All sources</option>
-          <option value="radarr">Radarr</option>
-          <option value="sonarr">Sonarr</option>
-        </select>
+        <label class="block">
+          <span
+            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
+          >
+            Source
+          </span>
+
+          <SelectInput
+            :model-value="filters.source"
+            @update:model-value="updateFilter('source', $event)"
+          >
+            <option value="">
+              All sources
+            </option>
+
+            <option value="radarr">
+              Radarr
+            </option>
+
+            <option value="sonarr">
+              Sonarr
+            </option>
+          </SelectInput>
+        </label>
 
         <!-- Quality -->
-        <input
-          :value="filters.quality"
-          type="text"
-          placeholder="Quality"
-          class="h-10 rounded-lg border border-white/7 bg-[#202020] px-3 text-sm text-zinc-300 outline-none placeholder:text-zinc-600 focus:border-white/15"
-          @input="
-            updateFilter(
-              'quality',
-              ($event.target as HTMLInputElement).value,
-            )
-          "
-        />
+        <label class="block">
+          <span
+            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
+          >
+            Quality
+          </span>
+
+          <input
+            :value="filters.quality"
+            type="text"
+            placeholder="All qualities"
+            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
+            @input="
+              updateFilter(
+                'quality',
+                ($event.target as HTMLInputElement).value,
+              )
+            "
+          />
+        </label>
 
         <!-- Season -->
-        <input
-          :value="filters.season ?? ''"
-          type="number"
-          min="0"
-          placeholder="Season"
-          class="h-10 rounded-lg border border-white/7 bg-[#202020] px-3 text-sm text-zinc-300 outline-none placeholder:text-zinc-600 focus:border-white/15"
-          @input="
-            updateFilter(
-              'season',
-              ($event.target as HTMLInputElement).value === ''
-                ? null
-                : Number(($event.target as HTMLInputElement).value),
-            )
-          "
-        />
+        <label class="block">
+          <span
+            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
+          >
+            Season
+          </span>
+
+          <input
+            :value="filters.season ?? ''"
+            type="number"
+            min="0"
+            placeholder="All seasons"
+            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
+            @input="
+              updateFilter(
+                'season',
+                ($event.target as HTMLInputElement).value === ''
+                  ? null
+                  : Number(($event.target as HTMLInputElement).value),
+              )
+            "
+          />
+        </label>
 
         <!-- From date -->
-        <div>
-          <label class="mb-1.5 block text-xs text-zinc-600">
+        <label class="block">
+          <span
+            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
+          >
             From
-          </label>
+          </span>
 
           <input
             :value="filters.fromDate"
             type="datetime-local"
-            class="h-10 w-full rounded-lg border border-white/7 bg-[#202020] px-3 text-sm text-zinc-300 outline-none focus:border-white/15"
+            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition [color-scheme:dark] focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
             @input="
               updateFilter(
                 'fromDate',
@@ -232,18 +298,20 @@ function clearFilters(): void {
               )
             "
           />
-        </div>
+        </label>
 
         <!-- To date -->
-        <div>
-          <label class="mb-1.5 block text-xs text-zinc-600">
+        <label class="block">
+          <span
+            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
+          >
             To
-          </label>
+          </span>
 
           <input
             :value="filters.toDate"
             type="datetime-local"
-            class="h-10 w-full rounded-lg border border-white/7 bg-[#202020] px-3 text-sm text-zinc-300 outline-none focus:border-white/15"
+            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition [color-scheme:dark] focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
             @input="
               updateFilter(
                 'toDate',
@@ -251,106 +319,102 @@ function clearFilters(): void {
               )
             "
           />
-        </div>
-      </div>
+        </label>
 
-      <!-- Sorting / clear -->
-      <div
-        class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4"
-      >
-        <div class="flex items-center gap-2">
-          <span class="text-xs text-zinc-600">
+        <!-- Sort -->
+        <label class="block">
+          <span
+            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
+          >
             Sort by
           </span>
 
-          <select
-            :value="filters.sort"
-            class="h-9 rounded-lg border border-white/7 bg-[#202020] px-2.5 text-xs text-zinc-300 outline-none focus:border-white/15"
-            @change="
-              updateFilter(
-                'sort',
-                ($event.target as HTMLSelectElement).value as RecentImportFilterState['sort'],
-              )
-            "
-          >
-            <option value="imported_at">
-              Import date
-            </option>
-
-            <option value="title">
-              Title
-            </option>
-
-            <option value="size">
-              Size
-            </option>
-
-            <option value="quality">
-              Quality
-            </option>
-          </select>
-
-          <button
-            type="button"
-            class="flex h-9 items-center gap-1.5 rounded-lg border border-white/7 bg-[#202020] px-2.5 text-xs text-zinc-400 transition hover:border-white/12 hover:text-white"
-            @click="toggleSortDirection"
-          >
-            <svg
-              v-if="filters.sortDirection === 'desc'"
-              viewBox="0 0 24 24"
-              fill="none"
-              class="h-3.5 w-3.5"
+          <div class="flex gap-2">
+            <SelectInput
+              :model-value="filters.sort"
+              class="min-w-0 flex-1"
+              @update:model-value="
+                updateFilter(
+                  'sort',
+                  $event as RecentImportFilterState['sort'],
+                )
+              "
             >
-              <path
-                d="M12 5V19"
-                stroke="currentColor"
-                stroke-width="1.7"
-                stroke-linecap="round"
-              />
+              <option value="imported_at">
+                Import date
+              </option>
 
-              <path
-                d="M7 14L12 19L17 14"
-                stroke="currentColor"
-                stroke-width="1.7"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+              <option value="title">
+                Title
+              </option>
 
-            <svg
-              v-else
-              viewBox="0 0 24 24"
-              fill="none"
-              class="h-3.5 w-3.5"
+              <option value="size">
+                Size
+              </option>
+
+              <option value="quality">
+                Quality
+              </option>
+            </SelectInput>
+
+            <button
+              type="button"
+              :title="
+                filters.sortDirection === 'asc'
+                  ? 'Ascending'
+                  : 'Descending'
+              "
+              class="flex w-11 shrink-0 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-950 text-zinc-400 transition hover:border-zinc-600 hover:text-white"
+              @click="toggleSortDirection"
             >
-              <path
-                d="M12 19V5"
+              <!-- Ascending -->
+              <svg
+                v-if="filters.sortDirection === 'asc'"
+                class="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
                 stroke="currentColor"
-                stroke-width="1.7"
-                stroke-linecap="round"
-              />
+                stroke-width="2"
+              >
+                <path d="m5 12 7-7 7 7" />
+                <path d="M12 19V5" />
+              </svg>
 
-              <path
-                d="M7 10L12 5L17 10"
+              <!-- Descending -->
+              <svg
+                v-else
+                class="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
                 stroke="currentColor"
-                stroke-width="1.7"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+                stroke-width="2"
+              >
+                <path d="m19 12-7 7-7-7" />
+                <path d="M12 5v14" />
+              </svg>
+            </button>
+          </div>
+        </label>
+      </div>
 
-            {{ filters.sortDirection === 'desc' ? 'Newest' : 'Oldest' }}
-          </button>
-        </div>
+      <!-- Mobile clear button -->
+      <div
+        v-if="activeFilterCount"
+        class="mt-4 flex items-center justify-between border-t border-zinc-800 pt-4 sm:hidden"
+      >
+        <span class="text-xs text-zinc-500">
+          {{ activeFilterCount }}
+          {{ activeFilterCount === 1 ? 'filter' : 'filters' }} active
+        </span>
 
         <button
           type="button"
-          class="text-xs text-zinc-600 transition hover:text-zinc-300"
+          class="text-sm text-zinc-400 transition hover:text-white"
           @click="clearFilters"
         >
           Clear filters
         </button>
       </div>
     </div>
-  </section>
+  </div>
 </template>

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+import DashboardLayout from '../layouts/DashboardLayout.vue'
 import DashboardView from '../views/DashboardView.vue'
 import HistoryView from '../views/HistoryView.vue'
 import LoginView from '../views/LoginView.vue'
@@ -25,20 +26,23 @@ const router = createRouter({
 
     {
       path: '/',
-      name: 'dashboard',
-      component: DashboardView,
+      component: DashboardLayout,
       meta: {
         requiresAuth: true,
       },
-    },
+      children:[
+        {
+          path: '',
+          name: 'dashboard',
+          component: DashboardView,
+        },
 
-    {
-      path: '/history',
-      name: 'history',
-      component: HistoryView,
-      meta: {
-        requiresAuth: true,
-      },
+        {
+          path: 'history',
+          name: 'history',
+          component: HistoryView,
+        },
+      ]
     },
 
     {

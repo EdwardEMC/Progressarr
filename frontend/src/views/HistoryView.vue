@@ -172,7 +172,6 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8">
     <!-- Header -->
     <div class="mb-8">
       <div class="flex items-end justify-between gap-4">
@@ -382,5 +381,4 @@ onUnmounted(() => {
         </button>
       </div>
     </template>
-  </main>
 </template>

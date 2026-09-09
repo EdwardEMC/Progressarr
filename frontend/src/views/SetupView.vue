@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSetupStore } from '../stores/setup'
 import { testJellyfinConnection } from '../api/settings.ts'
-import PasswordInput from '../components/PasswordInput.vue'
+import PasswordInput from '../components/inputs/PasswordInput.vue'
 
 const router = useRouter()
 const setup = useSetupStore()

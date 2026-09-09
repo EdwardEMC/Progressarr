@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { Download } from '../api/downloads'
-import type { DownloadFilterState } from '../interfaces/filter';
+import type { Download } from '../../api/downloads'
+import type { DownloadFilterState } from '../../interfaces/filter';
+import SelectInput from '../inputs/SelectInput.vue';
 
 const props = defineProps<{
   downloads: Download[]
@@ -203,10 +204,7 @@ function toggleSortDirection() {
             Status
           </span>
 
-          <select
-            v-model="filters.status"
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
-          >
+          <SelectInput v-model="filters.status">
             <option value="">
               All statuses
             </option>
@@ -218,7 +216,7 @@ function toggleSortDirection() {
             >
               {{ humanize(status) }}
             </option>
-          </select>
+          </SelectInput>
         </label>
 
         <!-- Media type -->
@@ -229,10 +227,7 @@ function toggleSortDirection() {
             Media type
           </span>
 
-          <select
-            v-model="filters.mediaType"
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
-          >
+          <SelectInput v-model="filters.mediaType">
             <option value="">
               All media
             </option>
@@ -244,7 +239,7 @@ function toggleSortDirection() {
             >
               {{ humanize(mediaType) }}
             </option>
-          </select>
+          </SelectInput>
         </label>
 
         <!-- Protocol -->
@@ -255,10 +250,7 @@ function toggleSortDirection() {
             Protocol
           </span>
 
-          <select
-            v-model="filters.protocol"
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
-          >
+          <SelectInput v-model="filters.protocol">
             <option value="">
               All protocols
             </option>
@@ -270,7 +262,7 @@ function toggleSortDirection() {
             >
               {{ humanize(protocol) }}
             </option>
-          </select>
+          </SelectInput>
         </label>
 
         <!-- Progress -->
@@ -281,10 +273,7 @@ function toggleSortDirection() {
             Progress
           </span>
 
-          <select
-            v-model="filters.progress"
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
-          >
+          <SelectInput v-model="filters.progress">
             <option value="">
               Any progress
             </option>
@@ -308,7 +297,7 @@ function toggleSortDirection() {
             <option value="100">
               100%
             </option>
-          </select>
+          </SelectInput>
         </label>
 
         <!-- Download client -->
@@ -319,10 +308,7 @@ function toggleSortDirection() {
             Download client
           </span>
 
-          <select
-            v-model="filters.downloadClient"
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
-          >
+          <SelectInput v-model="filters.downloadClient">
             <option value="">
               All clients
             </option>
@@ -334,7 +320,7 @@ function toggleSortDirection() {
             >
               {{ client }}
             </option>
-          </select>
+          </SelectInput>
         </label>
 
         <!-- Indexer -->
@@ -345,10 +331,7 @@ function toggleSortDirection() {
             Indexer
           </span>
 
-          <select
-            v-model="filters.indexer"
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
-          >
+          <SelectInput v-model="filters.indexer">
             <option value="">
               All indexers
             </option>
@@ -360,7 +343,7 @@ function toggleSortDirection() {
             >
               {{ indexer }}
             </option>
-          </select>
+          </SelectInput>
         </label>
 
         <!-- Requested by -->
@@ -371,10 +354,7 @@ function toggleSortDirection() {
             Requested by
           </span>
 
-          <select
-            v-model="filters.requestedBy"
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
-          >
+          <SelectInput v-model="filters.requestedBy">
             <option value="">
               Everyone
             </option>
@@ -386,7 +366,7 @@ function toggleSortDirection() {
             >
               {{ user }}
             </option>
-          </select>
+          </SelectInput>
         </label>
 
         <!-- Sort -->
@@ -398,9 +378,9 @@ function toggleSortDirection() {
           </span>
 
           <div class="flex gap-2">
-            <select
+            <SelectInput
               v-model="filters.sortBy"
-              class="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
+              class="min-w-0 flex-1"
             >
               <option value="title">
                 Title
@@ -437,7 +417,7 @@ function toggleSortDirection() {
               <option value="requested_by">
                 Requested by
               </option>
-            </select>
+            </SelectInput>
 
             <button
               type="button"
