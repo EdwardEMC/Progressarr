@@ -10,3 +10,14 @@ export type DownloadSortKey =
   | 'requested_by'
 
 export type DownloadSortDirection = 'asc' | 'desc'
+
+export type RecentImportSortKey =
+  | 'imported_at'
+  | 'title'
+  | 'size'
+  | 'quality'
+
+export type RecentImportSortDirection =
+  | 'asc'
+  | 'desc'
+  

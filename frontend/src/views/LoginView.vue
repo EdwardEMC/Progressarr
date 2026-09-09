@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 
 import { useAuthStore } from '../stores/auth'
 
-import PasswordInput from '../components/PasswordInput.vue'
+import PasswordInput from '../components/inputs/PasswordInput.vue'
 
 const router = useRouter()
 const auth = useAuthStore()

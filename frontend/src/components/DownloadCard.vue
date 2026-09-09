@@ -6,7 +6,7 @@ import DownloadCardLayout from './downloads/DownloadCardLayout.vue'
 import DownloadGridItem from './downloads/DownloadGridItem.vue'
 import DownloadRowItem from './downloads/DownloadRowItem.vue'
 
-import { formatBytes, formatStatus, getStatusClass } from './downloads/downloadFormatting'
+import { formatBytes, formatStatus, getStatusClass } from '../shared/downloadFormatting.ts'
 
 import type { DownloadView } from '../types/download.ts'
 import type { DownloadDisplayData } from '../interfaces/download.ts'
