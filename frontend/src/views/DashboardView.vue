@@ -4,8 +4,14 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
 import DownloadCard from '../components/DownloadCard.vue'
-import DownloadFilters from '../components/DownloadFilters.vue'
-import { getDownloads, type Download } from '../api/downloads'
+import RecentImportListItem from '../components/RecentImportListItem.vue'
+import DownloadFilters from '../components/filters/DownloadFilters.vue'
+import {
+  getDownloads,
+  getRecentDownloads,
+  type Download,
+  type RecentImport,
+} from '../api/downloads'
 import type { DownloadView } from '../types/download.ts'
 import type { DownloadFilterState } from '../interfaces/filter.ts'
 
@@ -13,6 +19,8 @@ const router = useRouter()
 const auth = useAuthStore()
 
 const downloads = ref<Download[]>([])
+const recentImports = ref<RecentImport[]>([])
+
 const loading = ref(true)
 const refreshing = ref(false)
 const error = ref<string | null>(null)
@@ -47,7 +55,10 @@ async function logout(): Promise<void> {
 
 let pollingInterval: ReturnType<typeof setInterval> | undefined
 
-async function loadDownloads(showLoading = true, showRefreshing = false): Promise<void> {
+async function loadDownloads(
+  showLoading = true,
+  showRefreshing = false,
+): Promise<void> {
   try {
     if (showLoading) {
       loading.value = true
@@ -58,10 +69,24 @@ async function loadDownloads(showLoading = true, showRefreshing = false): Promis
     }
 
     error.value = null
-    downloads.value = await getDownloads()
+
+    const downloadsPromise = getDownloads()
+    const recentImportsPromise = getRecentDownloads()
+
+    const [downloadResults, recentImportResults] = await Promise.all([
+      downloadsPromise,
+      recentImportsPromise.catch(() => []),
+    ])
+
+    downloads.value = downloadResults
+    recentImports.value = recentImportResults
+
     lastUpdated.value = new Date()
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Unable to load downloads.'
+    error.value =
+      err instanceof Error
+        ? err.message
+        : 'Unable to load downloads.'
   } finally {
     loading.value = false
     refreshing.value = false
@@ -213,6 +238,10 @@ const completedDownloads = computed(() => {
   return filteredDownloads.value.filter(
     (download) => download.status === 'completed',
   )
+})
+
+const displayedRecentImports = computed(() => {
+  return recentImports.value.slice(0, 6)
 })
 
 function formatUpdated(): string {
@@ -566,6 +595,53 @@ onUnmounted(() => {
               :key="download.id"
               :download="download"
               :view="downloadView"
+            />
+          </div>
+        </section>
+
+        <!-- Recent imports -->
+        <section
+          v-if="displayedRecentImports.length"
+          class="mt-12"
+        >
+          <div class="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <h3 class="text-xl font-medium">Recent imports</h3>
+
+              <p class="mt-1 text-sm text-zinc-600">
+                Recently added to your media library
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="cursor-pointer group flex items-center gap-1.5 text-sm text-zinc-500 transition hover:text-white"
+              @click="router.push('/history')"
+            >
+              View all
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                class="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+              >
+                <path
+                  d="M9 18L15 12L9 6"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div
+            class="rounded-xl border border-white/6 bg-[#181818] px-4 sm:px-5"
+          >
+            <RecentImportListItem
+              v-for="importItem in displayedRecentImports"
+              :key="importItem.id"
+              :import-item="importItem"
             />
           </div>
         </section>

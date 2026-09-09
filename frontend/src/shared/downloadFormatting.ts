@@ -1,4 +1,4 @@
-import type { Download } from '../../api/downloads'
+import type { Download } from '../api/downloads'
 
 export function formatBytes(bytes: number | null | undefined): string {
   if (!bytes || bytes <= 0) {

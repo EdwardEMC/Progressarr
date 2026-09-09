@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import DashboardView from '../views/DashboardView.vue'
+import HistoryView from '../views/HistoryView.vue'
 import LoginView from '../views/LoginView.vue'
 import SettingsView from '../views/settings/SettingsView.vue'
 import RadarrSettingsView from '../views/settings/RadarrSettingsView.vue'
@@ -26,6 +27,15 @@ const router = createRouter({
       path: '/',
       name: 'dashboard',
       component: DashboardView,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+    {
+      path: '/history',
+      name: 'history',
+      component: HistoryView,
       meta: {
         requiresAuth: true,
       },

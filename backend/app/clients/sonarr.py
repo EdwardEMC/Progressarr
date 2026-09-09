@@ -85,3 +85,24 @@ class SonarrClient:
             response.raise_for_status()
 
             return response.content
+
+    async def get_history(
+        self,
+        page: int = 1,
+        page_size: int = 20,
+    ) -> dict:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(
+                f"{self.base_url}/api/v3/history",
+                headers=self.headers,
+                params={
+                    "page": page,
+                    "pageSize": page_size,
+                    "sortKey": "date",
+                    "sortDirection": "descending",
+                },
+            )
+
+            response.raise_for_status()
+
+            return response.json()

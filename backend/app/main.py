@@ -1,12 +1,13 @@
+from datetime import datetime
+
 import httpx
 
 from pathlib import Path
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from sqlalchemy import select
+from typing import Literal
 
-from app.clients.radarr import RadarrClient
-from app.clients.sonarr import SonarrClient
 from app.api.auth import router as auth_router
 from app.api.requests import router as requests_router
 from app.api.settings import router as settings_router
@@ -16,7 +17,7 @@ from app.auth.dependencies import get_current_auth
 from app.auth.session import initialize_session_serializer
 from app.database import async_session, init_database
 from app.db_models import ServiceConfig
-from app.models import Download
+from app.models import Download, RecentImportFilters, RecentImportResponse
 from app.services.artwork_service import ArtworkService
 from app.services.client_factory import (
     create_jellyfin_client,
@@ -138,6 +139,75 @@ async def get_downloads(
         raise HTTPException(
             status_code=502,
             detail=f"Unable to retrieve download data: {exc}",
+        ) from exc
+
+
+@app.get(
+    "/api/downloads/recent",
+    response_model=RecentImportResponse,
+)
+async def get_recent_downloads(
+    page: int = 1,
+    page_size: int = 20,
+    search: str | None = None,
+    media_type: Literal["movie", "episode"] | None = None,
+    source: Literal["radarr", "sonarr"] | None = None,
+    quality: str | None = None,
+    season: int | None = None,
+    from_date: datetime | None = None,
+    to_date: datetime | None = None,
+    sort: Literal[
+        "imported_at",
+        "title",
+        "size",
+        "quality",
+    ] = "imported_at",
+    sort_direction: Literal["asc", "desc"] = "desc",
+    auth: AuthContext = Depends(get_current_auth),
+) -> RecentImportResponse:
+    try:
+        filters = RecentImportFilters(
+            search=search,
+            media_type=media_type,
+            source=source,
+            quality=quality,
+            season=season,
+            from_date=from_date,
+            to_date=to_date,
+            sort=sort,
+            sort_direction=sort_direction,
+        )
+                
+        config = await get_service_config()
+
+        radarr = create_radarr_client(config)
+        sonarr = create_sonarr_client(config)
+        seerr_client = create_seerr_client(config)
+
+        seerr = SeerrService(seerr=seerr_client)
+        request_service = RequestService(seerr=seerr)
+
+        download_service = DownloadService(
+            radarr=radarr,
+            sonarr=sonarr,
+            artwork=artwork,
+            requests=request_service,
+        )
+
+        return await download_service.get_recent_imports(
+            seerr_user_id=auth.user.seerr_user_id
+            if auth.user
+            else None,
+            is_admin=auth.is_admin,
+            page=page,
+            page_size=page_size,
+            filters=filters
+        )
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Unable to retrieve recent downloads: {exc}",
         ) from exc
 
 
