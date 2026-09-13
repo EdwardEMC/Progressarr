@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 
 import type { RecentImportFilterState } from '../../interfaces/filter'
-import SelectInput from '../inputs/SelectInput.vue';
+import SelectInput from '../inputs/SelectInput.vue'
 
 const props = defineProps<{
   filters: RecentImportFilterState
@@ -59,12 +59,7 @@ function toggleFilters(): void {
 }
 
 function toggleSortDirection(): void {
-  updateFilter(
-    'sortDirection',
-    props.filters.sortDirection === 'desc'
-      ? 'asc'
-      : 'desc',
-  )
+  updateFilter('sortDirection', props.filters.sortDirection === 'desc' ? 'asc' : 'desc')
 }
 
 function clearFilters(): void {
@@ -83,7 +78,9 @@ function clearFilters(): void {
 </script>
 
 <template>
-  <div class="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 shadow-xl">
+  <div
+    class="mb-8 rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
+  >
     <!-- Search / filter toggle -->
     <div class="p-4">
       <div class="flex items-center gap-3">
@@ -96,11 +93,7 @@ function clearFilters(): void {
             stroke="currentColor"
             stroke-width="2"
           >
-            <circle
-              cx="11"
-              cy="11"
-              r="7"
-            />
+            <circle cx="11" cy="11" r="7" />
             <path d="m20 20-4-4" />
           </svg>
 
@@ -108,20 +101,15 @@ function clearFilters(): void {
             :value="filters.search"
             type="search"
             placeholder="Search imports..."
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 py-2.5 pl-10 pr-4 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
-            @input="
-              updateFilter(
-                'search',
-                ($event.target as HTMLInputElement).value,
-              )
-            "
+            class="w-full rounded-lg border border-zinc-300 bg-zinc-50 py-2.5 pl-10 pr-4 text-sm text-zinc-900 placeholder-zinc-500 outline-none transition focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white dark:placeholder-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-500"
+            @input="updateFilter('search', ($event.target as HTMLInputElement).value)"
           />
         </div>
 
         <!-- Active filter count -->
         <span
           v-if="activeFilterCount"
-          class="hidden shrink-0 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-300 sm:block"
+          class="hidden shrink-0 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-600 sm:block dark:text-purple-300"
         >
           {{ activeFilterCount }}
           {{ activeFilterCount === 1 ? 'filter' : 'filters' }}
@@ -131,7 +119,7 @@ function clearFilters(): void {
         <button
           v-if="activeFilterCount"
           type="button"
-          class="hidden shrink-0 text-sm text-zinc-400 transition hover:text-white sm:block"
+          class="hidden shrink-0 text-sm text-zinc-500 transition hover:text-zinc-900 sm:block dark:text-zinc-400 dark:hover:text-white"
           @click="clearFilters"
         >
           Clear
@@ -146,8 +134,8 @@ function clearFilters(): void {
           class="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border transition"
           :class="
             filtersExpanded || hasActiveFilters
-              ? 'border-purple-500/50 bg-purple-500/10 text-purple-300'
-              : 'border-zinc-700 bg-zinc-950 text-zinc-400 hover:border-zinc-600 hover:text-white'
+              ? 'border-purple-500/50 bg-purple-500/10 text-purple-600 dark:text-purple-300'
+              : 'border-zinc-300 bg-zinc-50 text-zinc-500 hover:border-zinc-400 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-white'
           "
           @click="toggleFilters"
         >
@@ -175,16 +163,11 @@ function clearFilters(): void {
     </div>
 
     <!-- Advanced filters -->
-    <div
-      v-if="filtersExpanded"
-      class="border-t border-zinc-800 p-4"
-    >
+    <div v-if="filtersExpanded" class="border-t border-zinc-200 p-4 dark:border-zinc-800">
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Media type -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Media type
           </span>
 
@@ -192,25 +175,17 @@ function clearFilters(): void {
             :model-value="filters.mediaType"
             @update:model-value="updateFilter('mediaType', $event)"
           >
-            <option value="">
-              All media
-            </option>
+            <option value="">All media</option>
 
-            <option value="movie">
-              Movies
-            </option>
+            <option value="movie">Movies</option>
 
-            <option value="episode">
-              Episodes
-            </option>
+            <option value="episode">Episodes</option>
           </SelectInput>
         </label>
 
         <!-- Source -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Source
           </span>
 
@@ -218,25 +193,17 @@ function clearFilters(): void {
             :model-value="filters.source"
             @update:model-value="updateFilter('source', $event)"
           >
-            <option value="">
-              All sources
-            </option>
+            <option value="">All sources</option>
 
-            <option value="radarr">
-              Radarr
-            </option>
+            <option value="radarr">Radarr</option>
 
-            <option value="sonarr">
-              Sonarr
-            </option>
+            <option value="sonarr">Sonarr</option>
           </SelectInput>
         </label>
 
         <!-- Quality -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Quality
           </span>
 
@@ -244,21 +211,14 @@ function clearFilters(): void {
             :value="filters.quality"
             type="text"
             placeholder="All qualities"
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
-            @input="
-              updateFilter(
-                'quality',
-                ($event.target as HTMLInputElement).value,
-              )
-            "
+            class="w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-500 outline-none transition focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white dark:placeholder-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-500"
+            @input="updateFilter('quality', ($event.target as HTMLInputElement).value)"
           />
         </label>
 
         <!-- Season -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Season
           </span>
 
@@ -267,7 +227,7 @@ function clearFilters(): void {
             type="number"
             min="0"
             placeholder="All seasons"
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
+            class="w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-500 outline-none transition focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white dark:placeholder-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-500"
             @input="
               updateFilter(
                 'season',
@@ -281,51 +241,35 @@ function clearFilters(): void {
 
         <!-- From date -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             From
           </span>
 
           <input
             :value="filters.fromDate"
             type="datetime-local"
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition [color-scheme:dark] focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
-            @input="
-              updateFilter(
-                'fromDate',
-                ($event.target as HTMLInputElement).value,
-              )
-            "
+            class="w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none transition scheme-light focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white dark:[color-scheme:dark] dark:focus:border-zinc-500 dark:focus:ring-zinc-500"
+            @input="updateFilter('fromDate', ($event.target as HTMLInputElement).value)"
           />
         </label>
 
         <!-- To date -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             To
           </span>
 
           <input
             :value="filters.toDate"
             type="datetime-local"
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition [color-scheme:dark] focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
-            @input="
-              updateFilter(
-                'toDate',
-                ($event.target as HTMLInputElement).value,
-              )
-            "
+            class="w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 outline-none transition scheme-light focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white dark:[color-scheme:dark] dark:focus:border-zinc-500 dark:focus:ring-zinc-500"
+            @input="updateFilter('toDate', ($event.target as HTMLInputElement).value)"
           />
         </label>
 
         <!-- Sort -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Sort by
           </span>
 
@@ -333,38 +277,21 @@ function clearFilters(): void {
             <SelectInput
               :model-value="filters.sort"
               class="min-w-0 flex-1"
-              @update:model-value="
-                updateFilter(
-                  'sort',
-                  $event as RecentImportFilterState['sort'],
-                )
-              "
+              @update:model-value="updateFilter('sort', $event as RecentImportFilterState['sort'])"
             >
-              <option value="imported_at">
-                Import date
-              </option>
+              <option value="imported_at">Import date</option>
 
-              <option value="title">
-                Title
-              </option>
+              <option value="title">Title</option>
 
-              <option value="size">
-                Size
-              </option>
+              <option value="size">Size</option>
 
-              <option value="quality">
-                Quality
-              </option>
+              <option value="quality">Quality</option>
             </SelectInput>
 
             <button
               type="button"
-              :title="
-                filters.sortDirection === 'asc'
-                  ? 'Ascending'
-                  : 'Descending'
-              "
-              class="flex w-11 shrink-0 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-950 text-zinc-400 transition hover:border-zinc-600 hover:text-white"
+              :title="filters.sortDirection === 'asc' ? 'Ascending' : 'Descending'"
+              class="flex w-11 shrink-0 items-center justify-center rounded-lg border border-zinc-300 bg-zinc-50 text-zinc-500 transition hover:border-zinc-400 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-white"
               @click="toggleSortDirection"
             >
               <!-- Ascending -->
@@ -400,7 +327,7 @@ function clearFilters(): void {
       <!-- Mobile clear button -->
       <div
         v-if="activeFilterCount"
-        class="mt-4 flex items-center justify-between border-t border-zinc-800 pt-4 sm:hidden"
+        class="mt-4 flex items-center justify-between border-t border-zinc-200 pt-4 sm:hidden dark:border-zinc-800"
       >
         <span class="text-xs text-zinc-500">
           {{ activeFilterCount }}
@@ -409,7 +336,7 @@ function clearFilters(): void {
 
         <button
           type="button"
-          class="text-sm text-zinc-400 transition hover:text-white"
+          class="text-sm text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
           @click="clearFilters"
         >
           Clear filters

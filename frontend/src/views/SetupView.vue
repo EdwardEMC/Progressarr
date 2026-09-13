@@ -87,7 +87,9 @@ const submitSetup = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#101010] px-6 py-12 text-white lg:px-8">
+  <div
+    class="min-h-screen bg-zinc-50 px-6 py-12 text-zinc-900 transition-colors duration-200 dark:bg-[#101010] dark:text-white lg:px-8"
+  >
     <div class="mx-auto w-full max-w-2xl">
       <!-- Header -->
       <div class="mb-10">
@@ -109,9 +111,11 @@ const submitSetup = async () => {
           Initial setup
         </p>
 
-        <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Welcome to Progressarr</h1>
+        <h1 class="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
+          Welcome to Progressarr
+        </h1>
 
-        <p class="mt-3 max-w-xl text-sm leading-6 text-zinc-400">
+        <p class="mt-3 max-w-xl text-sm leading-6 text-zinc-600 dark:text-zinc-400">
           Before you can use Progressarr, you need to connect it to Jellyfin and create a local
           administrator password. These two settings serve different purposes and are explained
           below.
@@ -120,12 +124,12 @@ const submitSetup = async () => {
 
       <!-- Setup card -->
       <form
-        class="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900"
+        class="overflow-hidden rounded-xl border border-zinc-200 bg-white transition-colors duration-200 dark:border-zinc-800 dark:bg-zinc-900"
         @submit.prevent="submitSetup"
       >
         <!-- Jellyfin connection -->
-        <div class="border-b border-zinc-800 px-6 py-5">
-          <h2 class="font-medium text-white">Jellyfin connection</h2>
+        <div class="border-b border-zinc-200 px-6 py-5 dark:border-zinc-800">
+          <h2 class="font-medium text-zinc-900 dark:text-white">Jellyfin connection</h2>
 
           <p class="mt-1 text-sm leading-5 text-zinc-500">
             Progressarr uses Jellyfin as its primary user authentication system. Your normal
@@ -136,7 +140,10 @@ const submitSetup = async () => {
         <div class="space-y-6 p-6">
           <!-- Jellyfin URL -->
           <div>
-            <label for="jellyfin-url" class="mb-2 block text-sm font-medium text-zinc-300">
+            <label
+              for="jellyfin-url"
+              class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
               Jellyfin URL
             </label>
 
@@ -147,7 +154,7 @@ const submitSetup = async () => {
               required
               placeholder="http://jellyfin:8096"
               :disabled="loading || testing"
-              class="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-white outline-none transition placeholder:text-zinc-600 focus:border-zinc-500 disabled:cursor-not-allowed disabled:opacity-50"
+              class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white dark:placeholder:text-zinc-600 dark:focus:border-zinc-500 disabled:cursor-not-allowed disabled:opacity-50"
             />
 
             <p class="mt-2 text-xs leading-5 text-zinc-500">
@@ -158,7 +165,10 @@ const submitSetup = async () => {
 
           <!-- Jellyfin API key -->
           <div>
-            <label for="jellyfin-api-key" class="mb-2 block text-sm font-medium text-zinc-300">
+            <label
+              for="jellyfin-api-key"
+              class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
               Jellyfin API Key
             </label>
 
@@ -180,20 +190,22 @@ const submitSetup = async () => {
           <!-- Connection result -->
           <div
             v-if="message"
-            class="rounded-lg border border-emerald-900/50 bg-emerald-950/30 px-4 py-3 text-sm text-emerald-400"
+            class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-400"
           >
             {{ message }}
           </div>
 
           <div
             v-if="error"
-            class="rounded-lg border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm text-red-400"
+            class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400"
           >
             {{ error }}
           </div>
 
           <!-- Jellyfin authentication explanation -->
-          <div class="rounded-lg border border-zinc-800 bg-zinc-950/50 px-4 py-4">
+          <div
+            class="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-4 dark:border-zinc-800 dark:bg-zinc-950/50"
+          >
             <div class="flex gap-3">
               <svg viewBox="0 0 24 24" fill="none" class="mt-0.5 h-5 w-5 shrink-0 text-[#00a4dc]">
                 <path
@@ -205,7 +217,9 @@ const submitSetup = async () => {
               </svg>
 
               <div>
-                <p class="text-sm font-medium text-zinc-300">How normal login works</p>
+                <p class="text-sm font-medium text-zinc-800 dark:text-zinc-300">
+                  How normal login works
+                </p>
 
                 <p class="mt-1 text-xs leading-5 text-zinc-500">
                   Once setup is complete, users sign in to Progressarr using their Jellyfin username
@@ -218,9 +232,9 @@ const submitSetup = async () => {
         </div>
 
         <!-- Administrator account -->
-        <div class="border-t border-zinc-800">
-          <div class="border-b border-zinc-800 px-6 py-5">
-            <h2 class="font-medium text-white">Progressarr administrator</h2>
+        <div class="border-t border-zinc-200 dark:border-zinc-800">
+          <div class="border-b border-zinc-200 px-6 py-5 dark:border-zinc-800">
+            <h2 class="font-medium text-zinc-900 dark:text-white">Progressarr administrator</h2>
 
             <p class="mt-1 text-sm leading-5 text-zinc-500">
               Create a separate local administrator password for Progressarr.
@@ -238,7 +252,7 @@ const submitSetup = async () => {
                     stroke-width="2"
                   />
                   <path
-                    d="M19.4 15C19.2669 15.3016 19.0998 15.5866 18.9 15.85L20 17.5L17.5 20L15.85 18.9C15.5866 19.0998 15.3016 19.2669 15 19.4C14.6984 19.5331 14.3822 19.6332 14.05 19.7L13.75 21.75H10.25L9.95 19.7C9.61777 19.6332 9.30161 19.5331 9 19.4C8.69839 19.2669 8.41343 19.0998 8.15 18.9L6.5 20L4 17.5L5.1 15.85C4.9002 15.5866 4.73309 15.3016 4.6 15C4.46691 14.6984 4.36677 14.3822 4.3 14.05L2.25 13.75V10.25L4.3 9.95C4.36677 9.61777 4.46691 9.30161 4.6 9C4.73309 8.69839 4.9002 8.41343 5.1 8.15L4 6.5L6.5 4L8.15 5.1C8.41343 4.9002 8.69839 4.73309 9 4.6C9.30161 4.46691 9.61777 4.36691 9.95 4.3L10.25 2.25H13.75L14.05 4.3C14.3822 4.36691 14.6984 4.46691 15 4.6C15.3016 4.73309 15.5866 4.9002 15.85 5.1L17.5 4L20 6.5L18.9 8.15C19.0998 8.41343 19.2669 8.69839 19.4 9C19.5331 9.30161 19.6332 9.61777 19.7 9.95L21.75 10.25V13.75L19.7 14.05C19.6332 14.3822 19.5331 14.6984 19.4 15Z"
+                    d="M19.4 15C19.2669 15.3016 19.0998 15.5866 18.9 15.85L20 17.5L17.5 20L15.85 18.9C15.5866 19.0998 15.3016 19.2669 15 19.4C14.6984 19.5331 14.3822 19.6332 14.05 19.7L13.75 21.75H10.25L9.95 19.7C9.61777 19.6332 9.30161 19.5331 9 19.4C8.69839 19.2669 8.41343 19.0998 8.15 18.9L6.5 20L4 17.5L5.1 15.85C4.9002 15.5866 4.73309 15.3016 4.6 15C4.46691 14.6984 4.36677 14.3822 4.3 14.05L2.25 13.75V10.25L4.3 9.95C4.36677 9.61777 4.46691 9.3016 4.6 9C4.73309 8.69839 4.9002 8.41343 5.1 8.15L4 6.5L6.5 4L8.15 5.1C8.41343 4.9002 8.69839 4.73309 9 4.6C9.30161 4.46691 9.61777 4.46691 9.95 4.3L10.25 2.25H13.75L14.05 4.3C14.3822 4.36691 14.6984 4.46691 15 4.6C15.3016 4.73309 15.5866 4.9002 15.85 5.1L17.5 4L20 6.5L18.9 8.15C19.0998 8.41343 19.2669 8.69839 19.4 9C19.5331 9.30161 19.6332 9.61777 19.7 9.95L21.75 10.25V13.75L19.7 14.05C19.6331 14.3822 19.5331 14.6984 19.4 15Z"
                     stroke="currentColor"
                     stroke-width="1.5"
                     stroke-linejoin="round"
@@ -246,7 +260,7 @@ const submitSetup = async () => {
                 </svg>
 
                 <div>
-                  <p class="text-sm font-medium text-zinc-300">
+                  <p class="text-sm font-medium text-zinc-800 dark:text-zinc-300">
                     Why does Progressarr need its own administrator password?
                   </p>
 
@@ -266,7 +280,10 @@ const submitSetup = async () => {
 
             <!-- Administrator password -->
             <div>
-              <label for="admin-password" class="mb-2 block text-sm font-medium text-zinc-300">
+              <label
+                for="admin-password"
+                class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
                 Administrator Password
               </label>
 
@@ -287,7 +304,10 @@ const submitSetup = async () => {
 
             <!-- Confirm password -->
             <div>
-              <label for="confirm-password" class="mb-2 block text-sm font-medium text-zinc-300">
+              <label
+                for="confirm-password"
+                class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
                 Confirm Password
               </label>
 
@@ -305,20 +325,24 @@ const submitSetup = async () => {
         </div>
 
         <!-- Final explanation -->
-        <div class="border-t border-zinc-800 bg-zinc-950/30 px-6 py-5">
+        <div
+          class="border-t border-zinc-200 bg-zinc-50 px-6 py-5 dark:border-zinc-800 dark:bg-zinc-950/30"
+        >
           <p class="text-xs leading-5 text-zinc-500">
-            <span class="font-medium text-zinc-400">In short:</span>
+            <span class="font-medium text-zinc-700 dark:text-zinc-400"> In short: </span>
             Jellyfin handles normal user authentication, while the local Progressarr administrator
             account provides a separate way to manage and recover the application.
           </p>
         </div>
 
         <!-- Actions -->
-        <div class="flex items-center justify-end gap-3 border-t border-zinc-800 px-6 py-4">
+        <div
+          class="flex items-center justify-end gap-3 border-t border-zinc-200 px-6 py-4 dark:border-zinc-800"
+        >
           <button
             type="button"
             :disabled="loading || testing || !jellyfinUrl.trim() || !jellyfinApiKey.trim()"
-            class="rounded-lg border border-zinc-700 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            class="rounded-lg border border-zinc-300 px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
             @click="testConnection"
           >
             {{ testing ? 'Testing...' : 'Test Connection' }}
@@ -327,7 +351,7 @@ const submitSetup = async () => {
           <button
             type="submit"
             :disabled="loading || testing"
-            class="rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-zinc-900 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
+            class="rounded-lg bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {{ loading ? 'Setting up Progressarr...' : 'Complete Setup' }}
           </button>

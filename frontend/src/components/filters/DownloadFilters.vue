@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { Download } from '../../api/downloads'
-import type { DownloadFilterState } from '../../interfaces/filter';
-import SelectInput from '../inputs/SelectInput.vue';
+import type { DownloadFilterState } from '../../interfaces/filter'
+import SelectInput from '../inputs/SelectInput.vue'
 
 const props = defineProps<{
   downloads: Download[]
@@ -35,9 +35,7 @@ const protocols = computed(() => {
 })
 
 const downloadClients = computed(() => {
-  return uniqueValues(
-    props.downloads.map((download) => download.download_client),
-  )
+  return uniqueValues(props.downloads.map((download) => download.download_client))
 })
 
 const indexers = computed(() => {
@@ -45,9 +43,7 @@ const indexers = computed(() => {
 })
 
 const requestedByUsers = computed(() => {
-  return uniqueValues(
-    props.downloads.map((download) => download.requested_by_username),
-  )
+  return uniqueValues(props.downloads.map((download) => download.requested_by_username))
 })
 
 const activeFilterCount = computed(() => {
@@ -66,14 +62,13 @@ const activeFilterCount = computed(() => {
 })
 
 function uniqueValues(values: Array<string | null | undefined>): string[] {
-  return [...new Set(values.filter((value): value is string => Boolean(value)))]
-    .sort((a, b) => a.localeCompare(b))
+  return [...new Set(values.filter((value): value is string => Boolean(value)))].sort((a, b) =>
+    a.localeCompare(b),
+  )
 }
 
 function humanize(value: string): string {
-  return value
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (character) => character.toUpperCase())
+  return value.replace(/_/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase())
 }
 
 function toggleFilters() {
@@ -98,14 +93,15 @@ function clearFilters() {
 function toggleSortDirection() {
   emit('update:modelValue', {
     ...filters.value,
-    sortDirection:
-      filters.value.sortDirection === 'asc' ? 'desc' : 'asc',
+    sortDirection: filters.value.sortDirection === 'asc' ? 'desc' : 'asc',
   })
 }
 </script>
 
 <template>
-  <div class="mb-8 rounded-xl border border-zinc-800 bg-zinc-900 shadow-xl">
+  <div
+    class="mb-8 rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
+  >
     <!-- Search / filter toggle -->
     <div class="p-4">
       <div class="flex items-center gap-3">
@@ -118,11 +114,7 @@ function toggleSortDirection() {
             stroke="currentColor"
             stroke-width="2"
           >
-            <circle
-              cx="11"
-              cy="11"
-              r="7"
-            />
+            <circle cx="11" cy="11" r="7" />
             <path d="m20 20-4-4" />
           </svg>
 
@@ -130,14 +122,14 @@ function toggleSortDirection() {
             v-model="filters.search"
             type="search"
             placeholder="Search downloads by title..."
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-950 py-2.5 pl-10 pr-4 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
+            class="w-full rounded-lg border border-zinc-300 bg-zinc-50 py-2.5 pl-10 pr-4 text-sm text-zinc-900 placeholder-zinc-500 outline-none transition focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white dark:placeholder-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-500"
           />
         </div>
 
         <!-- Active filter count -->
         <span
           v-if="activeFilterCount"
-          class="hidden shrink-0 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-300 sm:block"
+          class="hidden shrink-0 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-600 sm:block dark:text-purple-300"
         >
           {{ activeFilterCount }}
           {{ activeFilterCount === 1 ? 'filter' : 'filters' }}
@@ -147,7 +139,7 @@ function toggleSortDirection() {
         <button
           v-if="activeFilterCount"
           type="button"
-          class="hidden shrink-0 text-sm text-zinc-400 transition hover:text-white sm:block"
+          class="hidden shrink-0 text-sm text-zinc-500 transition hover:text-zinc-900 sm:block dark:text-zinc-400 dark:hover:text-white"
           @click="clearFilters"
         >
           Clear
@@ -162,8 +154,8 @@ function toggleSortDirection() {
           class="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border transition"
           :class="
             filtersExpanded || activeFilterCount
-              ? 'border-purple-500/50 bg-purple-500/10 text-purple-300'
-              : 'border-zinc-700 bg-zinc-950 text-zinc-400 hover:border-zinc-600 hover:text-white'
+              ? 'border-purple-500/50 bg-purple-500/10 text-purple-600 dark:text-purple-300'
+              : 'border-zinc-300 bg-zinc-50 text-zinc-500 hover:border-zinc-400 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-white'
           "
           @click="toggleFilters"
         >
@@ -191,29 +183,18 @@ function toggleSortDirection() {
     </div>
 
     <!-- Advanced filters -->
-    <div
-      v-if="filtersExpanded"
-      class="border-t border-zinc-800 p-4"
-    >
+    <div v-if="filtersExpanded" class="border-t border-zinc-200 p-4 dark:border-zinc-800">
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Status -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Status
           </span>
 
           <SelectInput v-model="filters.status">
-            <option value="">
-              All statuses
-            </option>
+            <option value="">All statuses</option>
 
-            <option
-              v-for="status in statuses"
-              :key="status"
-              :value="status"
-            >
+            <option v-for="status in statuses" :key="status" :value="status">
               {{ humanize(status) }}
             </option>
           </SelectInput>
@@ -221,22 +202,14 @@ function toggleSortDirection() {
 
         <!-- Media type -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Media type
           </span>
 
           <SelectInput v-model="filters.mediaType">
-            <option value="">
-              All media
-            </option>
+            <option value="">All media</option>
 
-            <option
-              v-for="mediaType in mediaTypes"
-              :key="mediaType"
-              :value="mediaType"
-            >
+            <option v-for="mediaType in mediaTypes" :key="mediaType" :value="mediaType">
               {{ humanize(mediaType) }}
             </option>
           </SelectInput>
@@ -244,22 +217,14 @@ function toggleSortDirection() {
 
         <!-- Protocol -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Protocol
           </span>
 
           <SelectInput v-model="filters.protocol">
-            <option value="">
-              All protocols
-            </option>
+            <option value="">All protocols</option>
 
-            <option
-              v-for="protocol in protocols"
-              :key="protocol"
-              :value="protocol"
-            >
+            <option v-for="protocol in protocols" :key="protocol" :value="protocol">
               {{ humanize(protocol) }}
             </option>
           </SelectInput>
@@ -267,57 +232,35 @@ function toggleSortDirection() {
 
         <!-- Progress -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Progress
           </span>
 
           <SelectInput v-model="filters.progress">
-            <option value="">
-              Any progress
-            </option>
+            <option value="">Any progress</option>
 
-            <option value="0-25">
-              0–25%
-            </option>
+            <option value="0-25">0–25%</option>
 
-            <option value="25-50">
-              25–50%
-            </option>
+            <option value="25-50">25–50%</option>
 
-            <option value="50-75">
-              50–75%
-            </option>
+            <option value="50-75">50–75%</option>
 
-            <option value="75-99">
-              75–99%
-            </option>
+            <option value="75-99">75–99%</option>
 
-            <option value="100">
-              100%
-            </option>
+            <option value="100">100%</option>
           </SelectInput>
         </label>
 
         <!-- Download client -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Download client
           </span>
 
           <SelectInput v-model="filters.downloadClient">
-            <option value="">
-              All clients
-            </option>
+            <option value="">All clients</option>
 
-            <option
-              v-for="client in downloadClients"
-              :key="client"
-              :value="client"
-            >
+            <option v-for="client in downloadClients" :key="client" :value="client">
               {{ client }}
             </option>
           </SelectInput>
@@ -325,22 +268,14 @@ function toggleSortDirection() {
 
         <!-- Indexer -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Indexer
           </span>
 
           <SelectInput v-model="filters.indexer">
-            <option value="">
-              All indexers
-            </option>
+            <option value="">All indexers</option>
 
-            <option
-              v-for="indexer in indexers"
-              :key="indexer"
-              :value="indexer"
-            >
+            <option v-for="indexer in indexers" :key="indexer" :value="indexer">
               {{ indexer }}
             </option>
           </SelectInput>
@@ -348,22 +283,14 @@ function toggleSortDirection() {
 
         <!-- Requested by -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Requested by
           </span>
 
           <SelectInput v-model="filters.requestedBy">
-            <option value="">
-              Everyone
-            </option>
+            <option value="">Everyone</option>
 
-            <option
-              v-for="user in requestedByUsers"
-              :key="user"
-              :value="user"
-            >
+            <option v-for="user in requestedByUsers" :key="user" :value="user">
               {{ user }}
             </option>
           </SelectInput>
@@ -371,62 +298,35 @@ function toggleSortDirection() {
 
         <!-- Sort -->
         <label class="block">
-          <span
-            class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500"
-          >
+          <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
             Sort by
           </span>
 
           <div class="flex gap-2">
-            <SelectInput
-              v-model="filters.sortBy"
-              class="min-w-0 flex-1"
-            >
-              <option value="title">
-                Title
-              </option>
+            <SelectInput v-model="filters.sortBy" class="min-w-0 flex-1">
+              <option value="title">Title</option>
 
-              <option value="status">
-                Status
-              </option>
+              <option value="status">Status</option>
 
-              <option value="progress">
-                Progress
-              </option>
+              <option value="progress">Progress</option>
 
-              <option value="size">
-                Size
-              </option>
+              <option value="size">Size</option>
 
-              <option value="size_remaining">
-                Remaining size
-              </option>
+              <option value="size_remaining">Remaining size</option>
 
-              <option value="media_type">
-                Media type
-              </option>
+              <option value="media_type">Media type</option>
 
-              <option value="download_client">
-                Download client
-              </option>
+              <option value="download_client">Download client</option>
 
-              <option value="indexer">
-                Indexer
-              </option>
+              <option value="indexer">Indexer</option>
 
-              <option value="requested_by">
-                Requested by
-              </option>
+              <option value="requested_by">Requested by</option>
             </SelectInput>
 
             <button
               type="button"
-              :title="
-                filters.sortDirection === 'asc'
-                  ? 'Ascending'
-                  : 'Descending'
-              "
-              class="flex w-11 shrink-0 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-950 text-zinc-400 transition hover:border-zinc-600 hover:text-white"
+              :title="filters.sortDirection === 'asc' ? 'Ascending' : 'Descending'"
+              class="flex w-11 shrink-0 items-center justify-center rounded-lg border border-zinc-300 bg-zinc-50 text-zinc-500 transition hover:border-zinc-400 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-white"
               @click="toggleSortDirection"
             >
               <!-- Ascending -->
@@ -462,7 +362,7 @@ function toggleSortDirection() {
       <!-- Mobile clear button -->
       <div
         v-if="activeFilterCount"
-        class="mt-4 flex items-center justify-between border-t border-zinc-800 pt-4 sm:hidden"
+        class="mt-4 flex items-center justify-between border-t border-zinc-200 pt-4 sm:hidden dark:border-zinc-800"
       >
         <span class="text-xs text-zinc-500">
           {{ activeFilterCount }}
@@ -471,7 +371,7 @@ function toggleSortDirection() {
 
         <button
           type="button"
-          class="text-sm text-zinc-400 transition hover:text-white"
+          class="text-sm text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
           @click="clearFilters"
         >
           Clear filters

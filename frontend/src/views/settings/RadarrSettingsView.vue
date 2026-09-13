@@ -90,18 +90,22 @@ onMounted(loadSettings)
 <template>
   <AppLayout>
     <template #header>
-      <h1 class="text-lg font-semibold">Radarr</h1>
+      <h1 class="text-lg font-semibold text-zinc-900 dark:text-white">Radarr</h1>
     </template>
 
     <div class="mx-auto max-w-3xl">
       <div class="mb-8">
-        <h2 class="text-2xl font-semibold">Radarr</h2>
+        <h2 class="text-2xl font-semibold text-zinc-900 dark:text-white">Radarr</h2>
 
-        <p class="mt-1 text-sm text-zinc-400">Configure your Radarr connection.</p>
+        <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          Configure your Radarr connection.
+        </p>
       </div>
 
       <div v-if="loading">
-        <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-6 text-sm text-zinc-500">
+        <div
+          class="rounded-xl border border-zinc-200 bg-white p-6 text-sm text-zinc-500 transition-colors duration-200 dark:border-zinc-800 dark:bg-zinc-900"
+        >
           Loading settings...
         </div>
       </div>

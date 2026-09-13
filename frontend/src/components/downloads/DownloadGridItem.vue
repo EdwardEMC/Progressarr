@@ -5,18 +5,23 @@ defineProps<{
   download: DownloadDisplayData
 }>()
 </script>
+
 <template>
   <article
-    class="group overflow-hidden rounded-xl border border-white/8 bg-[#181818] transition hover:border-white/15 hover:bg-[#1c1c1c]"
+    class="group overflow-hidden rounded-xl border border-zinc-200 bg-white transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-white/8 dark:bg-[#181818] dark:hover:border-white/15 dark:hover:bg-[#1c1c1c]"
   >
-    <div class="relative aspect-2/3 overflow-hidden bg-[#101010]">
+    <div class="relative aspect-2/3 overflow-hidden bg-zinc-50 dark:bg-[#101010]">
       <img
         v-if="download.posterUrl"
         :src="download.posterUrl"
         :alt="download.title"
         class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
       />
-      <div v-else class="flex h-full items-center justify-center text-zinc-600">No artwork</div>
+
+      <div v-else class="flex h-full items-center justify-center text-zinc-500 dark:text-zinc-600">
+        No artwork
+      </div>
+
       <div class="absolute left-2 top-2">
         <span
           class="rounded-md px-2 py-1 text-xs font-medium backdrop-blur"
@@ -25,6 +30,7 @@ defineProps<{
           {{ download.status }}
         </span>
       </div>
+
       <div class="absolute inset-x-0 bottom-0 h-1 bg-black/50">
         <div
           class="h-full bg-linear-to-r from-[#aa5cc3] to-[#00a4dc]"
@@ -32,11 +38,15 @@ defineProps<{
         />
       </div>
     </div>
+
     <div class="p-3">
-      <h3 class="truncate text-sm font-medium text-white" :title="download.title">
+      <h3
+        class="truncate text-sm font-medium text-zinc-900 dark:text-white"
+        :title="download.title"
+      >
         {{ download.title }}
       </h3>
-      
+
       <p v-if="download.requestedBy" class="mt-1 text-sm text-zinc-500">
         Requested by {{ download.requestedBy }}
       </p>
@@ -44,15 +54,16 @@ defineProps<{
       <!-- Episode information -->
       <div
         v-if="
-          (download.mediaType === 'tv' || download.mediaType === 'episode') && (download.season !== null || download.episode !== null)
+          (download.mediaType === 'tv' || download.mediaType === 'episode') &&
+          (download.season !== null || download.episode !== null)
         "
-        class="mt-1 text-sm text-zinc-400"
+        class="mt-1 text-sm text-zinc-600 dark:text-zinc-400"
       >
         <span v-if="download.season !== null"> Season {{ download.season }} </span>
 
         <span
           v-if="download.season !== null && download.episode !== null"
-          class="mx-1 text-zinc-600"
+          class="mx-1 text-zinc-400 dark:text-zinc-600"
         >
           •
         </span>
@@ -61,7 +72,8 @@ defineProps<{
       </div>
 
       <div class="mt-1 flex items-center justify-between gap-2 text-xs text-zinc-500">
-        <span>{{ download.size }}</span> <span>{{ download.progress.toFixed(0) }}%</span>
+        <span>{{ download.size }}</span>
+        <span>{{ download.progress.toFixed(0) }}%</span>
       </div>
     </div>
   </article>
