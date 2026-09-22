@@ -1,36 +1,31 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+
+import ThemeToggle from '../components/ThemeToggle.vue'
 import { useAuthStore } from '../stores/auth'
+import LogoutButton from '../components/LogoutButton.vue'
 
 const router = useRouter()
-const auth = useAuthStore()
 
-async function logout(): Promise<void> {
-  await auth.logout()
-  await router.push({ name: 'login' })
-}
+const auth = useAuthStore()
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#101010] text-white">
+  <div
+    class="min-h-screen bg-zinc-50 text-zinc-900 transition-colors duration-200 dark:bg-[#101010] dark:text-white"
+  >
     <!-- Header -->
     <header
-      class="sticky top-0 z-50 border-b border-white/6 bg-[#101010]/90 backdrop-blur-xl"
+      class="sticky top-0 z-50 border-b border-zinc-200/80 bg-zinc-50/90 backdrop-blur-xl transition-colors duration-200 dark:border-white/6 dark:bg-[#101010]/90"
     >
-      <div
-        class="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8"
-      >
+      <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
         <!-- Branding -->
-        <div class=" cursor-pointer flex items-center gap-4" @click="router.push('/')">
+        <div class="flex cursor-pointer items-center gap-4" @click="router.push('/')">
           <!-- Progressarr mark -->
           <div
             class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-[#aa5cc3] to-[#00a4dc] shadow-lg shadow-[#00a4dc]/10"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              class="h-6 w-6 text-white"
-            >
+            <svg viewBox="0 0 24 24" fill="none" class="h-6 w-6 text-white">
               <path
                 d="M5 19V5M5 19H19M9 15L12 11L15 14L20 7"
                 stroke="currentColor"
@@ -42,13 +37,11 @@ async function logout(): Promise<void> {
           </div>
 
           <div>
-            <h1 class="text-lg font-semibold tracking-tight">
+            <h1 class="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">
               Progressarr
             </h1>
 
-            <p class="hidden text-xs text-zinc-500 sm:block">
-              Download progress
-            </p>
+            <p class="hidden text-xs text-zinc-500 sm:block">Download progress</p>
           </div>
         </div>
 
@@ -57,20 +50,19 @@ async function logout(): Promise<void> {
           <!-- Page-specific actions -->
           <slot name="actions" />
 
+          <!-- Theme -->
+          <ThemeToggle />
+
           <!-- Settings -->
           <button
             v-if="auth.isAdmin"
             type="button"
-            class="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-white/5 hover:text-white"
+            class="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"
             title="Settings"
             aria-label="Settings"
             @click="router.push('/settings')"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              class="h-5 w-5"
-            >
+            <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5">
               <path
                 d="M12 15.5A3.5 3.5 0 1 0 12 8.5A3.5 3.5 0 0 0 12 15.5Z"
                 stroke="currentColor"
@@ -88,41 +80,7 @@ async function logout(): Promise<void> {
           </button>
 
           <!-- Logout -->
-          <button
-            type="button"
-            class="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-red-500/10 hover:text-red-300"
-            title="Log out"
-            aria-label="Log out"
-            @click="logout"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              class="h-5 w-5"
-            >
-              <path
-                d="M10 5H6.5A1.5 1.5 0 0 0 5 6.5V17.5A1.5 1.5 0 0 0 6.5 19H10"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-              />
-
-              <path
-                d="M14 8L18 12L14 16"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-
-              <path
-                d="M18 12H10"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-              />
-            </svg>
-          </button>
+          <LogoutButton />
         </div>
       </div>
     </header>

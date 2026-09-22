@@ -58,10 +58,7 @@ function formatMediaLabel(): string {
     return 'Movie'
   }
 
-  if (
-    props.importItem.season !== null &&
-    props.importItem.episode !== null
-  ) {
+  if (props.importItem.season !== null && props.importItem.episode !== null) {
     return `S${String(props.importItem.season).padStart(2, '0')}E${String(
       props.importItem.episode,
     ).padStart(2, '0')}`
@@ -73,12 +70,10 @@ function formatMediaLabel(): string {
 
 <template>
   <div
-    class="group flex items-center gap-4 border-b border-white/5 py-3 last:border-b-0"
+    class="group flex items-center gap-4 border-b border-zinc-200 py-3 last:border-b-0 dark:border-white/5"
   >
     <!-- Poster -->
-    <div
-      class="h-14 w-10 shrink-0 overflow-hidden rounded-md bg-[#202020]"
-    >
+    <div class="h-14 w-10 shrink-0 overflow-hidden rounded-md bg-zinc-100 dark:bg-[#202020]">
       <img
         v-if="importItem.artwork?.poster_url"
         :src="importItem.artwork.poster_url"
@@ -89,13 +84,9 @@ function formatMediaLabel(): string {
 
       <div
         v-else
-        class="flex h-full w-full items-center justify-center text-zinc-700"
+        class="flex h-full w-full items-center justify-center text-zinc-400 dark:text-zinc-700"
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          class="h-5 w-5"
-        >
+        <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5">
           <rect
             x="3"
             y="3"
@@ -105,11 +96,7 @@ function formatMediaLabel(): string {
             stroke="currentColor"
             stroke-width="1.5"
           />
-          <path
-            d="M8 3V21M16 3V21"
-            stroke="currentColor"
-            stroke-width="1.5"
-          />
+          <path d="M8 3V21M16 3V21" stroke="currentColor" stroke-width="1.5" />
         </svg>
       </div>
     </div>
@@ -118,38 +105,36 @@ function formatMediaLabel(): string {
     <div class="min-w-0 flex-1">
       <div class="flex items-center gap-2">
         <h4
-          class="truncate text-sm font-medium text-zinc-200 transition group-hover:text-white"
+          class="truncate text-sm font-medium text-zinc-800 transition group-hover:text-zinc-950 dark:text-zinc-200 dark:group-hover:text-white"
         >
           {{ importItem.title }}
         </h4>
 
         <span
-          class="hidden shrink-0 rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-emerald-400 sm:inline-flex"
+          class="hidden shrink-0 rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-emerald-600 sm:inline-flex dark:text-emerald-400"
         >
           Imported
         </span>
       </div>
 
-      <div
-        class="mt-1 flex min-w-0 items-center gap-2 text-xs text-zinc-500"
-      >
+      <div class="mt-1 flex min-w-0 items-center gap-2 text-xs text-zinc-500">
         <span class="shrink-0">
           {{ formatMediaLabel() }}
         </span>
 
-        <span class="text-zinc-700">•</span>
+        <span class="text-zinc-400 dark:text-zinc-700">•</span>
 
         <span v-if="importItem.quality" class="shrink-0">
           {{ importItem.quality }}
         </span>
 
-        <span v-if="importItem.quality" class="text-zinc-700">•</span>
+        <span v-if="importItem.quality" class="text-zinc-400 dark:text-zinc-700"> • </span>
 
         <span class="shrink-0">
           {{ formatSize(importItem.size) }}
         </span>
 
-        <span class="hidden text-zinc-700 sm:inline">•</span>
+        <span class="hidden text-zinc-400 sm:inline dark:text-zinc-700"> • </span>
 
         <span class="hidden truncate sm:inline">
           {{ importItem.source }}
@@ -159,7 +144,7 @@ function formatMediaLabel(): string {
 
     <!-- Time -->
     <div class="shrink-0 text-right">
-      <span class="text-xs text-zinc-600">
+      <span class="text-xs text-zinc-500 dark:text-zinc-600">
         {{ formatRelativeTime(importItem.imported_at) }}
       </span>
     </div>

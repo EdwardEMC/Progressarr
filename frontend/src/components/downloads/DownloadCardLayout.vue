@@ -7,7 +7,9 @@ defineProps<{
 </script>
 
 <template>
-  <article class="group relative overflow-hidden rounded-xl border border-white/8 bg-[#181818]">
+  <article
+    class="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-white/8 dark:bg-[#181818]"
+  >
     <!-- Backdrop -->
     <div class="relative h-48 overflow-hidden">
       <img
@@ -17,10 +19,15 @@ defineProps<{
         class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
       />
 
-      <div v-else class="h-full w-full bg-linear-to-br from-[#181818] to-[#101010]" />
+      <div
+        v-else
+        class="h-full w-full bg-linear-to-br from-zinc-100 to-zinc-50 dark:from-[#181818] dark:to-[#101010]"
+      />
 
       <!-- Backdrop gradient -->
-      <div class="absolute inset-0 bg-linear-to-t from-[#181818] via-[#181818]/40 to-transparent" />
+      <div
+        class="absolute inset-0 bg-linear-to-t from-white via-white/40 to-transparent dark:from-[#181818] dark:via-[#181818]/40"
+      />
 
       <!-- Status -->
       <div class="absolute left-4 top-4">
@@ -43,7 +50,7 @@ defineProps<{
 
       <!-- Poster -->
       <div
-        class="absolute bottom-0 left-5 h-32 w-22 overflow-hidden rounded-lg border border-white/10 bg-[#101010] shadow-xl"
+        class="absolute bottom-0 left-5 h-32 w-22 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 shadow-xl dark:border-white/10 dark:bg-[#101010]"
       >
         <img
           v-if="download.posterUrl"
@@ -52,7 +59,10 @@ defineProps<{
           class="h-full w-full object-cover"
         />
 
-        <div v-else class="flex h-full items-center justify-center text-xs text-zinc-600">
+        <div
+          v-else
+          class="flex h-full items-center justify-center text-xs text-zinc-500 dark:text-zinc-600"
+        >
           No artwork
         </div>
       </div>
@@ -61,7 +71,10 @@ defineProps<{
     <!-- Content -->
     <div class="p-5 pt-4">
       <div class="ml-26 min-h-32">
-        <h3 class="line-clamp-2 text-lg font-semibold text-white" :title="download.title">
+        <h3
+          class="line-clamp-2 text-lg font-semibold text-zinc-900 dark:text-white"
+          :title="download.title"
+        >
           {{ download.title }}
         </h3>
 
@@ -72,15 +85,16 @@ defineProps<{
         <!-- Episode information -->
         <div
           v-if="
-            (download.mediaType === 'tv' || download.mediaType === 'episode') && (download.season !== null || download.episode !== null)
+            (download.mediaType === 'tv' || download.mediaType === 'episode') &&
+            (download.season !== null || download.episode !== null)
           "
-          class="mt-3 text-sm text-zinc-400"
+          class="mt-3 text-sm text-zinc-600 dark:text-zinc-400"
         >
           <span v-if="download.season !== null"> Season {{ download.season }} </span>
 
           <span
             v-if="download.season !== null && download.episode !== null"
-            class="mx-1 text-zinc-600"
+            class="mx-1 text-zinc-400 dark:text-zinc-600"
           >
             •
           </span>
@@ -94,10 +108,12 @@ defineProps<{
         <div class="mb-2 flex items-center justify-between text-xs">
           <span class="text-zinc-500"> Progress </span>
 
-          <span class="font-medium text-zinc-300"> {{ download.progress.toFixed(1) }}% </span>
+          <span class="font-medium text-zinc-800 dark:text-zinc-300">
+            {{ download.progress.toFixed(1) }}%
+          </span>
         </div>
 
-        <div class="h-2 overflow-hidden rounded-full bg-black/40">
+        <div class="h-2 overflow-hidden rounded-full bg-zinc-200 dark:bg-black/40">
           <div
             class="h-full rounded-full bg-linear-to-r from-[#aa5cc3] to-[#00a4dc] transition-all duration-300"
             :style="{ width: `${download.progress}%` }"
@@ -108,11 +124,11 @@ defineProps<{
       <!-- Metadata -->
       <div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <!-- Download client -->
-        <div v-if="download.downloadClient" class="rounded-lg bg-[#101010] p-3">
-          <p class="text-xs text-zinc-600">Client</p>
+        <div v-if="download.downloadClient" class="rounded-lg bg-zinc-50 p-3 dark:bg-[#101010]">
+          <p class="text-xs text-zinc-500 dark:text-zinc-600">Client</p>
 
           <p
-            class="mt-1 truncate text-sm font-medium text-zinc-300"
+            class="mt-1 truncate text-sm font-medium text-zinc-700 dark:text-zinc-300"
             :title="download.downloadClient"
           >
             {{ download.downloadClient }}
@@ -120,38 +136,41 @@ defineProps<{
         </div>
 
         <!-- Indexer -->
-        <div v-if="download.indexer" class="rounded-lg bg-[#101010] p-3">
-          <p class="text-xs text-zinc-600">Indexer</p>
+        <div v-if="download.indexer" class="rounded-lg bg-zinc-50 p-3 dark:bg-[#101010]">
+          <p class="text-xs text-zinc-500 dark:text-zinc-600">Indexer</p>
 
-          <p class="mt-1 truncate text-sm font-medium text-zinc-300" :title="download.indexer">
+          <p
+            class="mt-1 truncate text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            :title="download.indexer"
+          >
             {{ download.indexer }}
           </p>
         </div>
 
         <!-- Time remaining -->
-        <div v-if="download.timeLeft" class="rounded-lg bg-[#101010] p-3">
-          <p class="text-xs text-zinc-600">Time Remaining</p>
+        <div v-if="download.timeLeft" class="rounded-lg bg-zinc-50 p-3 dark:bg-[#101010]">
+          <p class="text-xs text-zinc-500 dark:text-zinc-600">Time Remaining</p>
 
-          <p class="mt-1 text-sm font-medium text-zinc-300">
+          <p class="mt-1 text-sm font-medium text-zinc-700 dark:text-zinc-300">
             {{ download.timeLeft }}
           </p>
         </div>
 
         <!-- Remaining -->
-        <div class="rounded-lg bg-[#101010] p-3">
-          <p class="text-xs text-zinc-600">Remaining</p>
+        <div class="rounded-lg bg-zinc-50 p-3 dark:bg-[#101010]">
+          <p class="text-xs text-zinc-500 dark:text-zinc-600">Remaining</p>
 
-          <p class="mt-1 text-sm font-medium text-zinc-300">
+          <p class="mt-1 text-sm font-medium text-zinc-700 dark:text-zinc-300">
             {{ download.sizeRemaining }}
           </p>
         </div>
       </div>
 
       <!-- Release -->
-      <div v-if="download.release" class="mt-4 rounded-lg bg-[#101010] p-3">
-        <p class="text-xs text-zinc-600">Release</p>
+      <div v-if="download.release" class="mt-4 rounded-lg bg-zinc-50 p-3 dark:bg-[#101010]">
+        <p class="text-xs text-zinc-500 dark:text-zinc-600">Release</p>
 
-        <p class="mt-1 truncate text-sm text-zinc-400" :title="download.release">
+        <p class="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400" :title="download.release">
           {{ download.release }}
         </p>
       </div>

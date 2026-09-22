@@ -30,7 +30,7 @@ const router = createRouter({
       meta: {
         requiresAuth: true,
       },
-      children:[
+      children: [
         {
           path: '',
           name: 'dashboard',
@@ -42,7 +42,7 @@ const router = createRouter({
           name: 'history',
           component: HistoryView,
         },
-      ]
+      ],
     },
 
     {
