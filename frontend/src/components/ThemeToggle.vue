@@ -7,7 +7,7 @@ const theme = useThemeStore()
 <template>
   <button
     type="button"
-    class="relative flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"
+    class="cursor-pointer relative flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-white"
     :title="theme.isDark ? 'Switch to light mode' : 'Switch to dark mode'"
     :aria-label="theme.isDark ? 'Switch to light mode' : 'Switch to dark mode'"
     @click="theme.toggleTheme"

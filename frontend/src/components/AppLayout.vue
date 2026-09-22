@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import ThemeToggle from './ThemeToggle.vue'
+import LogoutButton from './LogoutButton.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -118,8 +120,13 @@ async function logout() {
         <header
           class="flex h-16 items-center justify-between border-b border-zinc-200 bg-zinc-50 px-8 transition-colors duration-200 dark:border-zinc-800 dark:bg-[#101010]"
         >
-          <div>
+          <div class="flex w-full items-center justify-between">
             <slot name="header" />
+
+            <div class="flex flex-row gap-1 sm:gap-2">
+              <ThemeToggle />
+              <LogoutButton />
+            </div>
           </div>
         </header>
 
