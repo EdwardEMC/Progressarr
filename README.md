@@ -1,16 +1,94 @@
 # Progressarr
 
-**Progressarr** is a lightweight, self-hosted dashboard for monitoring and managing media downloads across the *Arr ecosystem.
+> A unified dashboard for your *Arr media stack.
 
-It provides a unified interface for viewing download activity, history, and media-processing information from services such as **Radarr**, **Sonarr**, **SABnzbd**, **Sonarr**, **Seerr**, and **Jellyfin**.
+Progressarr is a lightweight, self-hosted dashboard that brings download activity, history, requests, and media-processing information together in one place.
 
-The application is designed to complement existing media automation tools rather than replace them.
+![Dashboard](docs/images/dashboard.png)
+
+Instead of jumping between multiple applications, Progressarr provides a single visibility layer across your media pipeline.
+
+**Radarr → Download → Import → Jellyfin**
+
+**Sonarr → Download → Import → Jellyfin**
+
+Progressarr is designed to complement the tools that already do the heavy lifting rather than replace them.
 
 ---
 
-## Initial Setup
+## Features
 
-Add the Progressarr container to your existing `docker-compose.yml` or Docker stack. The following is an example configuration:
+- Unified download monitoring
+- Download history
+- Sonarr history
+- Radarr history
+- User-scoped requests and downloads
+- Download status information
+- Media and service metadata
+- Search
+- Advanced filtering
+- Date/time filtering
+- Sorting
+- Jellyfin integration
+- Seerr integration
+- Session-based authentication
+- Centralised service configuration
+- Responsive UI
+- Docker-first deployment
+
+---
+
+## Supported Services
+
+| Service | Integration |
+|---|---|
+| Radarr | Movies, downloads, history, grabs, imports |
+| Sonarr | Series, episodes, downloads, history, grabs, imports |
+| Seerr | User requests |
+| Jellyfin | Media-server information |
+| SABnzbd | Download information |
+
+Progressarr is designed so additional services can be integrated without tightly coupling their configuration to the rest of the application.
+
+---
+
+## Screenshots
+
+Screenshots will be added as the UI continues to evolve.
+
+### Dashboard
+![Dashboard](docs/images/dashboard_filters.png)
+
+### History
+![History](docs/images/history.png)
+
+### Settings
+![Settings](docs/images/settings.png)
+
+
+---
+
+# Getting Started
+
+The recommended way to run Progressarr is with Docker.
+
+### Prerequisites
+
+You will need:
+
+- Docker
+- Docker Compose
+- A running Radarr instance
+- A running Sonarr instance
+- A running Seerr instance
+
+Jellyfin is optional.
+
+Progressarr is designed primarily for self-hosted environments.
+
+### Quick Start
+
+Add Progressarr to your existing Docker Compose stack:
 
 ```yaml
 progressarr:
@@ -25,134 +103,136 @@ progressarr:
   restart: unless-stopped
 ```
 
-### First-Time Setup
+Then start the container:
 
-When you first access Progressarr, you will be presented with the setup screen. This setup process:
+```bash
+docker compose up -d progressarr
+```
+
+Open Progressarr in your browser and complete the first-time setup.
+
+For the complete installation and configuration guide, see [Getting Started](docs/GETTING_STARTED.md).
+
+---
+
+# First-Time Setup
+
+When Progressarr is first opened, the setup screen guides you through the initial configuration.
+
+The setup process:
 
 1. Connects Progressarr to your Jellyfin server.
 2. Creates the default administrator account.
 
-The setup screen is also available through the recovery/setup paths if Progressarr needs to be reconfigured.
+Once setup is complete, configure your Radarr, Sonarr, and Seerr connections through **Settings**.
 
-Once setup is complete, navigate to **Settings** and configure your Radarr, Sonarr, and Seerr connections.
+Users can log in using their existing Jellyfin account credentials. Administrators can additionally log in using the default administrator account created during setup.
 
-### Authentication
+---
 
-Setup is now complete.
+# Docker Networking
 
-Users can log in to Progressarr using their existing **Jellyfin account credentials**. Administrators can additionally log in using either their Jellyfin account or the **default administrator account** created during setup.
+When Progressarr is running on a shared Docker network, services should be configured using their Docker service/container name rather than the host IP address.
 
-### Docker Networking
-
-If Progressarr is running on a shared Docker network (such as the `media` network in the example above), services should be configured using their **Docker service/container name** rather than the host's IP address.
-
-For example, instead of:
-
-```text
-http://192.168.0.1:8096
-```
-
-use:
+For example:
 
 ```text
 http://jellyfin:8096
 ```
 
-This allows Docker's internal DNS to resolve the `jellyfin` container directly over the shared network.
+instead of:
 
-**Setup is now complete.**
+```text
+http://192.168.0.1:8096
+```
+
+This allows Docker's internal DNS to resolve the service directly over the shared network.
+
+Progressarr and the services it communicates with must share a Docker network for this approach to work.
 
 ---
 
-## Features
+# Dashboard
 
-### Dashboard
+Progressarr provides a central dashboard for monitoring media activity across the configured services.
 
-Progressarr provides a central dashboard for monitoring media activity across your services.
+The dashboard currently provides:
 
-Current functionality includes:
+- Download overview
+- Download history
+- Sonarr history
+- Radarr history
+- User-scoped requests
+- Download status information
+- Media/service metadata
+- Search
+- Advanced filtering
+- Sorting
+- Date/time filtering
 
-* Download overview
-* Download history
-* Sonarr history
-* Radarr history
-* User scoped requests
-* Download status information
-* Media/service metadata
-* Search
-* Advanced filtering
-* Sorting
-* Date/time filtering
-* Authentication
-* Settings management
-* Logout
-* Service configuration
-* Responsive UI
+---
 
-### Download Filtering
+# Download Filtering
 
 The download interface supports filtering across a number of download attributes.
 
-The filtering UI is designed to keep the dashboard clean by initially displaying the primary search control while allowing additional filters to be expanded when required.
+The primary search control is displayed by default, while additional filters can be expanded when required.
 
-Filters can be combined to narrow large download/history datasets.
+Filters can be combined to narrow large download and history datasets.
 
-Filtering and query processing are implemented with performance in mind so that expensive filtering operations are avoided where possible.
+---
 
-### History
+# History
 
-Progressarr can process historical activity from:
+Progressarr processes historical activity from:
 
-* Sonarr
-* Radarr
+- Sonarr
+- Radarr
 
 History information can be used to understand what happened to downloads after they were grabbed, including processing and import activity.
 
-### Authentication
+History is scoped by user requests, meaning standard users only see relevant historical data while administrators can see all history.
 
-Progressarr includes application-level authentication with:
+---
 
-* Session-based authentication
-* Admin sessions
-* User sessions
-* Secure session cookies
-* Protected API endpoints
-* Login/logout functionality
+# Authentication
+
+Progressarr includes application-level authentication using session-based authentication.
+
+The authentication system supports:
+
+- Administrator sessions
+- Standard user sessions
+- Secure session cookies
+- Protected API endpoints
+- Login/logout functionality
 
 Unauthenticated requests to protected endpoints are rejected.
 
-### Service Configuration
+---
+
+# Service Configuration
 
 Service configuration is stored centrally and can be bootstrapped from environment configuration.
 
 Currently supported service configuration includes:
 
-* Radarr
-* Sonarr
-* Seerr
-* Jellyfin
+- Radarr
+- Sonarr
+- Seerr
+- Jellyfin
 
-The architecture is designed so additional services can be integrated without tightly coupling their configuration to the rest of the application.
-
----
-
-## Screenshots
-
-Screenshots can be added here as the UI continues to evolve.
-
-```text
-Coming soon
-```
+The external media services remain the source of truth for media and download information.
 
 ---
 
-## Architecture
+# Architecture
 
 Progressarr consists of two primary applications:
 
 ```text
 ┌─────────────────────────────┐
-│          Browser            │
+│           Browser           │
 │                             │
 │       Vue / TypeScript      │
 └─────────────┬───────────────┘
@@ -171,7 +251,7 @@ Progressarr consists of two primary applications:
 │  └───────────────────────┘  │
 └─────────────┬───────────────┘
               │
-       ┌──────┼─────────┐──────────┐
+       ┌──────┼─────────┬──────────┐
        │      │         │          │
        ▼      ▼         ▼          ▼
     Radarr  Sonarr   Jellyfin    Seerr
@@ -184,41 +264,37 @@ Progressarr consists of two primary applications:
 
 ---
 
-## Technology Stack
+# Technology Stack
 
-### Backend
+## Backend
 
-* Python
-* FastAPI
-* SQLAlchemy
-* SQLite
-* Pydantic
-* Pydantic Settings
-* Uvicorn
+- Python
+- FastAPI
+- SQLAlchemy
+- SQLite
+- Pydantic
+- Pydantic Settings
+- Uvicorn
 
-### Frontend
+## Frontend
 
-* Vue 3
-* TypeScript
-* Vite
-* Tailwind CSS
-* Pinia
-* Vue Router
-* Vue I18n
+- Vue 3
+- TypeScript
+- Vite
+- Tailwind CSS
+- Pinia
+- Vue Router
+- Vue I18n
 
-### Deployment
+## Deployment
 
-* Docker
-* Docker Compose
-* Nginx/reverse proxy compatible
+- Docker
+- Docker Compose
+- Nginx/reverse-proxy compatible
 
 ---
 
-## Project Structure
-
-The project is separated into frontend and backend applications.
-
-A simplified structure is:
+# Project Structure
 
 ```text
 Progressarr/
@@ -250,6 +326,8 @@ Progressarr/
 │   └── ...
 │
 ├── docker-compose.yml
+├── docs/
+│   └── GETTING_STARTED.md
 └── README.md
 ```
 
@@ -257,271 +335,9 @@ The exact structure may evolve as the project develops.
 
 ---
 
-# Getting Started
-
-## Prerequisites
-
-For a Docker-based installation, you will need:
-
-* Docker
-* Docker Compose
-* A running Radarr instance
-* A running Sonarr instance
-* A running Seerr instance
-
-Jellyfin is optional.
-
-Progressarr is designed primarily for self-hosted environments.
-
----
-
-## Docker Installation
-
-Clone the repository:
-
-```bash
-git clone <repository-url>
-cd Progressarr
-```
-
-Create the environment configuration:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and provide the required configuration.
-
-Then start Progressarr:
-
-```bash
-docker compose up -d
-```
-
-Check the containers:
-
-```bash
-docker compose ps
-```
-
-View logs:
-
-```bash
-docker compose logs -f
-```
-
-Once the containers are running, open the Progressarr web interface in your browser.
-
----
-
-# Configuration
-
-Progressarr uses environment variables for initial application configuration.
-
-An example configuration looks like:
-
-```env
-RADARR_URL=http://radarr:7878
-RADARR_API_KEY=your-radarr-api-key
-
-SONARR_URL=http://sonarr:8989
-SONARR_API_KEY=your-sonarr-api-key
-
-SEERR_URL=http://seerr:8989
-SEERR_API_KEY=your-seerr-api-key
-
-JELLYFIN_URL=http://jellyfin:8096
-JELLYFIN_API_KEY=your-jellyfin-api-key
-
-SESSION_SECRET=your-secret-session-key
-```
-
-The exact environment variables may change as the configuration system evolves.
-
-### Docker Networking
-
-When Progressarr is deployed alongside the media stack using Docker Compose, services can generally be accessed using their Docker Compose service names.
-
-For example:
-
-```env
-RADARR_URL=http://radarr:7878
-SONARR_URL=http://sonarr:8989
-JELLYFIN_URL=http://jellyfin:8096
-```
-
-This avoids relying on container IP addresses, which can change when containers are recreated.
-
----
-
-# Authentication
-
-Progressarr protects application endpoints using session-based authentication.
-
-The authentication system supports different session types, including:
-
-* Administrator sessions
-* Standard user sessions
-
-Authentication is handled by the FastAPI backend and uses an HTTP cookie to maintain the authenticated session.
-
-Protected endpoints require a valid Progressarr session.
-
-If a session is missing or invalid, the API returns:
-
-```text
-401 Unauthorized
-```
-
----
-
-# Database
-
-Progressarr currently uses **SQLite** through SQLAlchemy.
-
-The database is initialized when the application starts.
-
-Configuration/bootstrap data can be populated during application startup.
-
-The database stores application-specific information such as service configuration and other Progressarr state.
-
-The external media services remain the source of truth for media and download information.
-
----
-
-# Service Integration
-
-## Radarr
-
-Progressarr integrates with Radarr to retrieve movie-related information and history.
-
-Radarr provides information about:
-
-* Movies
-* Downloads
-* History
-* Grab events
-* Import activity
-
----
-
-## Sonarr
-
-Progressarr integrates with Sonarr for television-related information.
-
-Sonarr provides information about:
-
-* Series
-* Episodes
-* Downloads
-* History
-* Grab events
-* Import activity
-
----
-
-## Seerr
-
-Progressarr integrates with Seerr for user request information.
-
-Seerr provides information about:
-
-* User requested media
-
----
-
-## Jellyfin
-
-Jellyfin integration provides access to media-server information.
-
-Jellyfin is not intended to replace Jellyfin's primary interface.
-
-Instead, the integration allows Progressarr to provide additional context around media activity.
-
----
-
-# Download Processing
-
-One of Progressarr's primary responsibilities is turning information from the *Arr applications into a unified download representation.
-
-Downloads can originate from different applications and have different metadata.
-
-Progressarr normalizes this information into a common download model so the frontend can display it consistently.
-
-This allows the dashboard to provide a unified experience instead of requiring users to switch between multiple applications.
-
-The downloads are scoped by user requests, meaning users only see what they have requested. The administrator can see all downloads.
-
----
-
-# History Processing
-
-History processing is performed separately for Radarr and Sonarr.
-
-The backend processes history entries and associates them with the appropriate download/media information.
-
-The processing pipeline is designed to avoid repeatedly querying external services when the required information can be determined from already available data.
-
-This is particularly important for large history datasets where naïvely processing every record can result in significant delays.
-
-The history is scoped by user requests, meaning users only see what they have requested. The administrator can see all historic data.
-
----
-
-# Searching, Filtering & Sorting
-
-The dashboard provides a flexible interface for navigating download data.
-
-Users can:
-
-* Search downloads
-* Filter results
-* Combine multiple filters
-* Filter by date/time
-* Sort results
-* Narrow results based on download metadata
-
-The primary search field is visible by default, while additional filtering controls can be expanded when required.
-
-This keeps the interface clean while still allowing detailed queries.
-
----
-
-# Frontend
-
-The Progressarr frontend is built using Vue 3 and TypeScript.
-
-The UI uses Tailwind CSS and follows a dark, media-server-inspired visual design.
-
-The frontend is structured around reusable components and API modules.
-
-For example:
-
-```text
-components/
-├── DownloadCard.vue
-└── ...
-
-api/
-├── downloads.ts
-└── ...
-
-views/
-├── Dashboard.vue
-└── ...
-```
-
-State that needs to be shared across views is handled through Pinia.
-
-Vue Router is used for application navigation.
-
----
-
 # Development
 
 ## Backend
-
-The backend can be run locally using Uvicorn.
 
 From the backend directory:
 
@@ -530,8 +346,6 @@ python -m uvicorn app.main:app --reload
 ```
 
 The `--reload` option automatically reloads the application when Python source files change.
-
----
 
 ## Frontend
 
@@ -590,7 +404,7 @@ docker compose down
 
 # Troubleshooting
 
-## Container cannot connect to Radarr/Sonarr
+## Progressarr cannot connect to Radarr or Sonarr
 
 First check that the services are running:
 
@@ -598,7 +412,7 @@ First check that the services are running:
 docker compose ps
 ```
 
-Then check the Docker network:
+Then check the Docker networks:
 
 ```bash
 docker network ls
@@ -608,11 +422,9 @@ If Progressarr and the *Arr services are running in different Docker networks, t
 
 Make sure the relevant containers share a Docker network.
 
----
-
 ## API returns `401 Unauthorized`
 
-A `401` response generally means the request is not authenticated or the configured service API key is invalid.
+A `401` response generally means the request is not authenticated or a configured service API key is invalid.
 
 Check:
 
@@ -620,8 +432,6 @@ Check:
 2. The relevant service is reachable.
 3. The configured API key is correct.
 4. The service URL is correct.
-
----
 
 ## Configuration changes are not appearing
 
@@ -635,20 +445,18 @@ docker compose restart backend
 
 If the application already has configuration stored in the database, existing configuration may take precedence over newly supplied environment variables.
 
----
-
 ## Database schema changes
 
 When database models change during development, the local database may no longer match the current SQLAlchemy models.
 
-For development environments where the database can safely be recreated, the Docker volume can be removed and recreated.
+For development environments where the database can safely be recreated:
 
 ```bash
 docker compose down -v
 docker compose up -d
 ```
 
-**Warning:** removing volumes deletes data stored in those volumes.
+**Warning:** Removing volumes deletes data stored in those volumes.
 
 Do not use this command against a production database unless you intentionally want to destroy the stored data.
 
@@ -660,12 +468,12 @@ Progressarr is intended primarily for trusted/self-hosted environments.
 
 When exposing Progressarr outside the local network:
 
-* Use HTTPS.
-* Protect the application behind a suitable reverse proxy where appropriate.
-* Do not commit API keys to source control.
-* Do not expose `.env` files.
-* Use strong authentication credentials.
-* Restrict access using your network/VPN infrastructure where possible.
+- Use HTTPS.
+- Protect the application behind a suitable reverse proxy where appropriate.
+- Do not commit API keys to source control.
+- Do not expose `.env` files.
+- Use strong authentication credentials.
+- Restrict access using your network or VPN infrastructure where possible.
 
 API keys for Radarr, Sonarr, and Jellyfin should be treated as secrets.
 
@@ -677,19 +485,19 @@ Progressarr is actively being developed.
 
 Potential future improvements include:
 
-* Additional *Arr integrations
-* Improved download status tracking
-* More detailed media statistics
-* Enhanced history analysis
-* Dashboard statistics
-* More advanced filtering
-* Improved caching
-* Background synchronization
-* Improved mobile UI
-* More granular user permissions
-* Additional authentication options
-* Expanded Jellyfin integration
-* Improved performance for very large histories
+- Additional *Arr integrations
+- Improved download status tracking
+- More detailed media statistics
+- Enhanced history analysis
+- Dashboard statistics
+- More advanced filtering
+- Improved caching
+- Background synchronization
+- Improved mobile UI
+- More granular user permissions
+- Additional authentication options
+- Expanded Jellyfin integration
+- Improved performance for very large histories
 
 ---
 
