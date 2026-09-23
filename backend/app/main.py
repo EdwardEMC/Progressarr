@@ -1,6 +1,7 @@
 import httpx
 import os
 
+from collections.abc import AsyncIterator
 from datetime import datetime
 from pathlib import Path
 from fastapi import Depends, FastAPI, HTTPException
@@ -36,7 +37,7 @@ ARTWORK_CACHE_DIR = BASE_DIR / "data" / "artwork"
 FRONTEND_DIST_DIR = BASE_DIR / "frontend" / "dist"
 
 
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     await init_database()
 
     async with async_session() as session:
@@ -57,6 +58,7 @@ APP_VERSION = os.getenv(
 app = FastAPI(
     title="Progressarr",
     version=APP_VERSION,
+    lifespan=lifespan,
 )
 
 app.include_router(requests_router)
