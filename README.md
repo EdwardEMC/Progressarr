@@ -518,7 +518,7 @@ Before submitting a pull request:
 
 # License
 
-License information will be added once the project's licensing terms have been finalized.
+Progressarr is licensed under the [MIT License](LICENSE).
 
 ---
 
