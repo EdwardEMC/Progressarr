@@ -67,15 +67,24 @@ async def login(
 
         if config is None:
             raise HTTPException(
-                status_code=500,
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Progressarr configuration has not been initialized.",
+            )
+
+        if not config.jellyfin_url or not config.jellyfin_api_key:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Jellyfin has not been configured.",
             )
 
         jellyfin_client = create_jellyfin_client(config)
         jellyfin = JellyfinService(jellyfin=jellyfin_client)
 
-        seerr_client = create_seerr_client(config)
-        seerr = SeerrService(seerr=seerr_client)
+        seerr = None
+
+        if config.seerr_url and config.seerr_api_key:
+            seerr_client = create_seerr_client(config)
+            seerr = SeerrService(seerr=seerr_client)
 
         service = AuthService(
             session,
@@ -90,8 +99,8 @@ async def login(
 
     if user is None:
         raise HTTPException(
-            status_code=401,
-            detail="Invalid username or password.",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Jellyfin username or password.",
         )
 
     token = create_user_session_token(user.id)
