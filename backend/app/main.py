@@ -1,7 +1,7 @@
-from datetime import datetime
-
 import httpx
+import os
 
+from datetime import datetime
 from pathlib import Path
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
@@ -49,12 +49,15 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(
-    title="Progressarr",
-    version="0.1.0",
-    lifespan=lifespan,
+APP_VERSION = os.getenv(
+    "APP_VERSION",
+    "0.1.0",
 )
 
+app = FastAPI(
+    title="Progressarr",
+    version=APP_VERSION,
+)
 
 app.include_router(requests_router)
 app.include_router(auth_router)
