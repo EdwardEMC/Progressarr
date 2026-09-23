@@ -9,7 +9,7 @@ class JellyfinClient:
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.headers = {
-            "X-Emby-Token": api_key,
+            "Authorization": f'MediaBrowser Token="{api_key}"',
         }
 
     async def get_system_info(self) -> dict:
