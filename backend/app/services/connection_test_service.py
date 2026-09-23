@@ -83,14 +83,25 @@ async def test_jellyfin_connection(
             response = await client.get(
                 f"{base_url}/System/Info",
                 headers={
-                    "X-Emby-Token": api_key,
+                    "Authorization": f'MediaBrowser Token="{api_key}"',
                 },
             )
 
             if response.status_code in {401, 403}:
+                response = await client.get(
+                    f"{base_url}/System/Info",
+                    headers={
+                        "X-Emby-Token": api_key,
+                    },
+                )
+
+            if response.status_code in {401, 403}:
                 return ConnectionTestResponse(
                     success=False,
-                    message="Jellyfin rejected the API key.",
+                    message=(
+                        f"Jellyfin rejected the API key "
+                        f"(HTTP {response.status_code})."
+                    ),
                 )
 
             response.raise_for_status()
@@ -115,7 +126,9 @@ async def test_jellyfin_connection(
     except httpx.HTTPStatusError as exc:
         return ConnectionTestResponse(
             success=False,
-            message=(f"Jellyfin returned HTTP {exc.response.status_code}."),
+            message=(
+                f"Jellyfin returned HTTP {exc.response.status_code}."
+            ),
         )
 
     except httpx.HTTPError:
