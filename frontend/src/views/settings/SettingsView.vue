@@ -26,32 +26,38 @@ onMounted(async () => {
 <template>
   <AppLayout>
     <template #header>
-      <h1 class="text-lg font-semibold">Settings</h1>
+      <h1 class="text-lg font-semibold text-zinc-900 dark:text-white">Settings</h1>
     </template>
 
     <div>
       <div class="mb-8">
-        <h2 class="text-2xl font-semibold">Settings</h2>
+        <h2 class="text-2xl font-semibold text-zinc-900 dark:text-white">Settings</h2>
 
-        <p class="mt-1 text-sm text-zinc-400">Configure your Progressarr services.</p>
+        <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          Configure your Progressarr services.
+        </p>
       </div>
 
       <div class="grid gap-4 md:grid-cols-2">
         <RouterLink
           to="/settings/radarr"
-          class="rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-zinc-700 hover:bg-zinc-800"
+          class="rounded-xl border border-zinc-200 bg-white p-6 transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
         >
           <div class="flex items-start justify-between gap-4">
             <div>
-              <h3 class="font-medium text-white">Radarr</h3>
+              <h3 class="font-medium text-zinc-900 dark:text-white">Radarr</h3>
 
-              <p class="mt-2 text-sm text-zinc-400">Configure your Radarr connection.</p>
+              <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                Configure your Radarr connection.
+              </p>
             </div>
 
             <span
               class="rounded-full px-2.5 py-1 text-xs font-medium"
               :class="
-                radarrConfigured ? 'bg-green-500/10 text-green-400' : 'bg-zinc-800 text-zinc-400'
+                radarrConfigured
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-green-500/10 dark:text-green-400'
+                  : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
               "
             >
               {{ radarrConfigured ? 'Configured' : 'Not configured' }}
@@ -61,19 +67,23 @@ onMounted(async () => {
 
         <RouterLink
           to="/settings/sonarr"
-          class="rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-zinc-700 hover:bg-zinc-800"
+          class="rounded-xl border border-zinc-200 bg-white p-6 transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
         >
           <div class="flex items-start justify-between gap-4">
             <div>
-              <h3 class="font-medium text-white">Sonarr</h3>
+              <h3 class="font-medium text-zinc-900 dark:text-white">Sonarr</h3>
 
-              <p class="mt-2 text-sm text-zinc-400">Configure your Sonarr connection.</p>
+              <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                Configure your Sonarr connection.
+              </p>
             </div>
 
             <span
               class="rounded-full px-2.5 py-1 text-xs font-medium"
               :class="
-                sonarrConfigured ? 'bg-green-500/10 text-green-400' : 'bg-zinc-800 text-zinc-400'
+                sonarrConfigured
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-green-500/10 dark:text-green-400'
+                  : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
               "
             >
               {{ sonarrConfigured ? 'Configured' : 'Not configured' }}
@@ -83,19 +93,23 @@ onMounted(async () => {
 
         <RouterLink
           to="/settings/seerr"
-          class="rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-zinc-700 hover:bg-zinc-800"
+          class="rounded-xl border border-zinc-200 bg-white p-6 transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
         >
           <div class="flex items-start justify-between gap-4">
             <div>
-              <h3 class="font-medium text-white">Seerr</h3>
+              <h3 class="font-medium text-zinc-900 dark:text-white">Seerr</h3>
 
-              <p class="mt-2 text-sm text-zinc-400">Configure your Seerr connection.</p>
+              <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                Configure your Seerr connection.
+              </p>
             </div>
 
             <span
               class="rounded-full px-2.5 py-1 text-xs font-medium"
               :class="
-                seerrConfigured ? 'bg-green-500/10 text-green-400' : 'bg-zinc-800 text-zinc-400'
+                seerrConfigured
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-green-500/10 dark:text-green-400'
+                  : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
               "
             >
               {{ seerrConfigured ? 'Configured' : 'Not configured' }}
@@ -105,19 +119,23 @@ onMounted(async () => {
 
         <RouterLink
           to="/settings/jellyfin"
-          class="rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-zinc-700 hover:bg-zinc-800"
+          class="rounded-xl border border-zinc-200 bg-white p-6 transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
         >
           <div class="flex items-start justify-between gap-4">
             <div>
-              <h3 class="font-medium text-white">Jellyfin</h3>
+              <h3 class="font-medium text-zinc-900 dark:text-white">Jellyfin</h3>
 
-              <p class="mt-2 text-sm text-zinc-400">Configure your Jellyfin connection.</p>
+              <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                Configure your Jellyfin connection.
+              </p>
             </div>
 
             <span
               class="rounded-full px-2.5 py-1 text-xs font-medium"
               :class="
-                jellyfinConfigured ? 'bg-green-500/10 text-green-400' : 'bg-zinc-800 text-zinc-400'
+                jellyfinConfigured
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-green-500/10 dark:text-green-400'
+                  : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
               "
             >
               {{ jellyfinConfigured ? 'Configured' : 'Not configured' }}

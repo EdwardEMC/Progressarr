@@ -10,12 +10,15 @@ defineProps<{
   required?: boolean
   minlength?: number
 }>()
+
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
+
 const showPassword = ref(false)
 const pasteError = ref(false)
 
 async function pasteFromClipboard() {
   pasteError.value = false
+
   try {
     const text = await navigator.clipboard.readText()
     emit('update:modelValue', text)
@@ -24,6 +27,7 @@ async function pasteFromClipboard() {
   }
 }
 </script>
+
 <template>
   <div>
     <div class="relative">
@@ -36,16 +40,17 @@ async function pasteFromClipboard() {
         :autocomplete="autocomplete"
         :placeholder="placeholder"
         :disabled="disabled"
-        class="w-full rounded-lg border border-zinc-700 bg-zinc-950 py-2.5 pl-3 pr-20 text-white outline-none transition placeholder:text-zinc-600 focus:border-zinc-500 disabled:cursor-not-allowed disabled:opacity-50"
+        class="w-full rounded-lg border border-zinc-300 bg-white py-2.5 pl-3 pr-20 text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white dark:placeholder:text-zinc-600 dark:focus:border-zinc-500 disabled:cursor-not-allowed disabled:opacity-50"
         @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       />
+
       <div class="absolute inset-y-0 right-2 flex items-center gap-1">
         <!-- Paste -->
         <button
           type="button"
           :disabled="disabled"
           title="Paste from clipboard"
-          class="flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition hover:bg-zinc-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          class="flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
           @click="pasteFromClipboard"
         >
           <svg
@@ -60,12 +65,13 @@ async function pasteFromClipboard() {
             <path d="M10 4h7" />
           </svg>
         </button>
+
         <!-- Toggle visibility -->
         <button
           type="button"
           :disabled="disabled"
           :title="showPassword ? 'Hide password' : 'Show password'"
-          class="flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition hover:bg-zinc-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          class="flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
           @click="showPassword = !showPassword"
         >
           <!-- Eye -->
@@ -80,6 +86,7 @@ async function pasteFromClipboard() {
             <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
             <circle cx="12" cy="12" r="2.5" />
           </svg>
+
           <!-- Eye off -->
           <svg
             v-else
@@ -97,7 +104,8 @@ async function pasteFromClipboard() {
         </button>
       </div>
     </div>
-    <p v-if="pasteError" class="mt-2 text-xs text-red-400">
+
+    <p v-if="pasteError" class="mt-2 text-xs text-red-600 dark:text-red-400">
       Unable to access the clipboard. Please paste manually.
     </p>
   </div>

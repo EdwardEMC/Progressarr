@@ -1,13 +1,5 @@
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  useSlots,
-  type VNode,
-} from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useSlots, type VNode } from 'vue'
 
 interface SelectOption {
   value: string
@@ -78,8 +70,7 @@ function extractOptions(nodes: VNode[]): SelectOption[] {
       result.push(
         ...extractOptions(
           node.children.filter(
-            (child): child is VNode =>
-              typeof child === 'object' && child !== null,
+            (child): child is VNode => typeof child === 'object' && child !== null,
           ),
         ),
       )
@@ -106,14 +97,11 @@ function extractOptions(nodes: VNode[]): SelectOption[] {
 
 const options = computed<SelectOption[]>(() => {
   const nodes = slots.default?.() ?? []
-
   return extractOptions(nodes)
 })
 
 const selectedOption = computed(() => {
-  return options.value.find(
-    (option) => option.value === props.modelValue,
-  )
+  return options.value.find((option) => option.value === props.modelValue)
 })
 
 const selectedLabel = computed(() => {
@@ -121,9 +109,7 @@ const selectedLabel = computed(() => {
 })
 
 const selectedIndex = computed(() => {
-  return options.value.findIndex(
-    (option) => option.value === props.modelValue,
-  )
+  return options.value.findIndex((option) => option.value === props.modelValue)
 })
 
 const enabledOptions = computed(() => {
@@ -143,9 +129,7 @@ function open() {
   isOpen.value = true
 
   highlightedIndex.value =
-    selectedIndex.value >= 0
-      ? selectedIndex.value
-      : enabledOptions.value[0]?.index ?? -1
+    selectedIndex.value >= 0 ? selectedIndex.value : (enabledOptions.value[0]?.index ?? -1)
 
   nextTick(() => {
     scrollHighlightedOptionIntoView()
@@ -188,10 +172,7 @@ function moveHighlight(direction: 1 | -1) {
   let nextPosition = currentPosition + direction
 
   if (currentPosition === -1) {
-    nextPosition =
-      direction === 1
-        ? 0
-        : enabledOptions.value.length - 1
+    nextPosition = direction === 1 ? 0 : enabledOptions.value.length - 1
   }
 
   if (nextPosition < 0) {
@@ -202,8 +183,7 @@ function moveHighlight(direction: 1 | -1) {
     nextPosition = 0
   }
 
-  highlightedIndex.value =
-    enabledOptions.value[nextPosition]?.index ?? -1
+  highlightedIndex.value = enabledOptions.value[nextPosition]?.index ?? -1
 
   nextTick(() => {
     scrollHighlightedOptionIntoView()
@@ -285,10 +265,7 @@ function handleKeydown(event: KeyboardEvent) {
       if (isOpen.value) {
         event.preventDefault()
 
-        const last =
-          enabledOptions.value[
-            enabledOptions.value.length - 1
-          ]
+        const last = enabledOptions.value[enabledOptions.value.length - 1]
 
         if (last) {
           highlightedIndex.value = last.index
@@ -304,10 +281,7 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 function handleClickOutside(event: MouseEvent) {
-  if (
-    selectRef.value &&
-    !selectRef.value.contains(event.target as Node)
-  ) {
+  if (selectRef.value && !selectRef.value.contains(event.target as Node)) {
     close()
   }
 }
@@ -317,9 +291,7 @@ function scrollHighlightedOptionIntoView() {
     return
   }
 
-  const element = optionsRef.value.querySelector(
-    `[data-option-index="${highlightedIndex.value}"]`,
-  )
+  const element = optionsRef.value.querySelector(`[data-option-index="${highlightedIndex.value}"]`)
 
   if (element instanceof HTMLElement) {
     element.scrollIntoView({
@@ -338,14 +310,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
-    ref="selectRef"
-    class="relative w-full"
-  >
+  <div ref="selectRef" class="relative w-full">
     <!--
       Keep the slot in the component API so callers can continue
       using normal <option> elements.
-
       The slot itself is hidden because this component does not
       use the browser's native <select> UI.
     -->
@@ -361,22 +329,18 @@ onBeforeUnmount(() => {
       :aria-expanded="isOpen"
       aria-haspopup="listbox"
       :disabled="disabled"
-      class="flex w-full items-center justify-between rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-left text-sm outline-none transition focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 disabled:cursor-not-allowed disabled:opacity-50"
+      class="flex w-full items-center justify-between rounded-lg border bg-white px-3 py-2.5 text-left text-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-950"
       :class="
         isOpen
-          ? 'border-zinc-500 ring-1 ring-zinc-500'
-          : 'hover:border-zinc-600'
+          ? 'border-zinc-400 ring-1 ring-zinc-400 dark:border-zinc-500 dark:ring-zinc-500'
+          : 'border-zinc-300 hover:border-zinc-400 dark:border-zinc-700 dark:hover:border-zinc-600'
       "
       @click="toggle"
       @keydown="handleKeydown"
     >
       <span
         class="min-w-0 flex-1 truncate"
-        :class="
-          selectedOption
-            ? 'text-white'
-            : 'text-zinc-500'
-        "
+        :class="selectedOption ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'"
       >
         {{ selectedLabel }}
       </span>
@@ -398,7 +362,7 @@ onBeforeUnmount(() => {
       ref="optionsRef"
       role="listbox"
       :aria-labelledby="id"
-      class="absolute left-0 right-0 z-50 mt-2 max-h-60 overflow-y-auto rounded-lg border border-zinc-700 bg-zinc-900 p-1 shadow-2xl"
+      class="absolute left-0 right-0 z-50 mt-2 max-h-60 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-1 shadow-2xl dark:border-zinc-700 dark:bg-zinc-900"
     >
       <button
         v-for="(option, index) in options"
@@ -409,13 +373,13 @@ onBeforeUnmount(() => {
         :disabled="option.disabled"
         :data-option-index="index"
         class="flex w-full items-center rounded-md px-3 py-2.5 text-left text-sm transition"
-        :class="[
+        :class="
           option.disabled
-            ? 'cursor-not-allowed text-zinc-600'
+            ? 'cursor-not-allowed text-zinc-400 dark:text-zinc-600'
             : index === highlightedIndex
-              ? 'bg-zinc-800 text-white'
-              : 'text-zinc-300 hover:bg-zinc-800 hover:text-white',
-        ]"
+              ? 'bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white'
+              : 'text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white'
+        "
         @mouseenter="highlightedIndex = index"
         @click="selectOption(index)"
       >
@@ -425,7 +389,7 @@ onBeforeUnmount(() => {
 
         <svg
           v-if="option.value === modelValue"
-          class="ml-3 h-4 w-4 shrink-0 text-purple-400"
+          class="ml-3 h-4 w-4 shrink-0 text-purple-600 dark:text-purple-400"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
