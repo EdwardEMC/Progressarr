@@ -59,12 +59,70 @@ jobs:
           echo "tag=${next_tag}" >> "$GITHUB_OUTPUT"
 
       # =========================
+      # Set up Docker Buildx
+      # =========================
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # =========================
+      # Build Docker image
+      # =========================
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+
+          build-args: |
+            APP_VERSION=${{ steps.version.outputs.version }}
+
+          tags: |
+            progressarr:${{ steps.version.outputs.version }}
+
+      # =========================
+      # Log in to GHCR
+      # =========================
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # =========================
+      # Tag image
+      # =========================
+      - name: Tag Docker image
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          IMAGE: ghcr.io/${{ github.repository }}
+        run: |
+          docker tag \
+            "progressarr:${VERSION}" \
+            "${IMAGE}:${VERSION}"
+
+          docker tag \
+            "progressarr:${VERSION}" \
+            "${IMAGE}:latest"
+
+      # =========================
+      # Push Docker images
+      # =========================
+      - name: Push Docker images
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          IMAGE: ghcr.io/${{ github.repository }}
+        run: |
+          docker push "${IMAGE}:${VERSION}"
+          docker push "${IMAGE}:latest"
+
+      # =========================
       # Create Git tag
       # =========================
       - name: Create Git tag
         env:
-          VERSION: ${{ steps.version.outputs.version }}
           TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -87,41 +145,3 @@ jobs:
           gh release create "${TAG}" \
             --title "Progressarr ${VERSION}" \
             --generate-notes
-
-      # =========================
-      # Log in to GHCR
-      # =========================
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # =========================
-      # Set up Docker Buildx
-      # =========================
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      # =========================
-      # Build and push Docker image
-      # =========================
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-
-          build-args: |
-            APP_VERSION=${{ steps.version.outputs.version }}
-
-          tags: |
-            ghcr.io/edwardemc/progressarr:${{ steps.version.outputs.version }}
-            ghcr.io/edwardemc/progressarr:latest
-
-          labels: |
-            org.opencontainers.image.title=Progressarr
-            org.opencontainers.image.version=${{ steps.version.outputs.version }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
