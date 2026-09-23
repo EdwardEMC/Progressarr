@@ -1,5 +1,10 @@
 import httpx
+import os
 
+APP_VERSION = os.getenv(
+    "APP_VERSION",
+    "0.1.0",
+)
 
 class JellyfinClient:
     def __init__(
@@ -32,11 +37,12 @@ class JellyfinClient:
             response = await client.post(
                 f"{self.base_url}/Users/AuthenticateByName",
                 headers={
-                    "X-Emby-Authorization": (
-                        'MediaBrowser Client="Progressarr", '
+                    "Authorization": (
+                        'MediaBrowser '
+                        'Client="Progressarr", '
                         'Device="Progressarr", '
                         'DeviceId="progressarr", '
-                        'Version="0.1.0"'
+                        f'Version="{APP_VERSION}"'
                     ),
                     "Content-Type": "application/json",
                 },
