@@ -24,6 +24,10 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+ARG APP_VERSION=0.1.0
+
+ENV APP_VERSION=${APP_VERSION}
+
 COPY backend/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
