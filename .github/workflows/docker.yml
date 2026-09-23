@@ -95,8 +95,10 @@ jobs:
       - name: Tag Docker image
         env:
           VERSION: ${{ steps.version.outputs.version }}
-          IMAGE: ghcr.io/${{ github.repository }}
+          REPOSITORY: ${{ github.repository }}
         run: |
+          IMAGE="ghcr.io/$(echo "${REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+
           docker tag \
             "progressarr:${VERSION}" \
             "${IMAGE}:${VERSION}"
@@ -111,8 +113,10 @@ jobs:
       - name: Push Docker images
         env:
           VERSION: ${{ steps.version.outputs.version }}
-          IMAGE: ghcr.io/${{ github.repository }}
+          REPOSITORY: ${{ github.repository }}
         run: |
+          IMAGE="ghcr.io/$(echo "${REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+
           docker push "${IMAGE}:${VERSION}"
           docker push "${IMAGE}:latest"
 
